@@ -198,6 +198,11 @@
 .bob-fab.is-waving .bob-arm--l { animation: bobWave .26s ease-in-out 4 alternate; }
 .bob-fab.is-waving .bob-rhead { animation: bobHop .3s ease-in-out 3; }
 
+/* quick skip-wobble while Bob changes spot during a scroll journey */
+.bob-fab.is-traveling .bob-bot { animation-duration: 1.05s; }
+.bob-fab.is-traveling .bob-fab-ring { animation-duration: .85s; opacity: .9; }
+.bob-fab.is-traveling .bob-rhead { animation: bobHop .34s ease-in-out 2; }
+
 @keyframes bobFloat { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-5px) rotate(1deg); } }
 @keyframes bobRing { 0% { transform: scale(.85); opacity: .7; } 100% { transform: scale(1.45); opacity: 0; } }
 @keyframes bobAntenna { 0%, 90%, 100% { transform: scale(1); opacity: 1; } 94% { transform: scale(.7); opacity: .55; } }

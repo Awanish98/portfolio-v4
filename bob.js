@@ -122,28 +122,69 @@
      REACTIVE ENGINE — Bob reads the page and reacts to the user
      ========================================================== */
 
-  /* crawl the current page so Bob knows what's around him */
+  /* ---------- CRAWL ENGINE — Bob maps what exists on and around this page ---------- */
+  const cleanText = s => (s || '').replace(/\s+/g, ' ').trim();
+
   function crawlSite() {
-    const clean = s => (s || '').replace(/\s+/g, ' ').trim();
     const headings = Array.from(document.querySelectorAll('h1, h2, h3'))
-      .map(h => clean(h.textContent)).filter(Boolean).slice(0, 12);
-    const sections = Array.from(document.querySelectorAll('[id]'))
+      .map(h => cleanText(h.textContent)).filter(Boolean).slice(0, 16);
+    const sections = Array.from(document.querySelectorAll('section[id], [id]'))
       .map(el => ({
         id: el.id,
-        label: clean(el.getAttribute('aria-label') || (el.querySelector('h2, h3') && el.querySelector('h2, h3').textContent) || el.id)
+        label: cleanText(el.getAttribute('aria-label') ||
+          (el.querySelector('h2, h3') && el.querySelector('h2, h3').textContent) || el.id)
       }))
-      .filter(s => s.label && s.label.length < 60).slice(0, 18);
+      .filter(s => s.label && s.label.length < 60).slice(0, 24);
     const buttons = Array.from(document.querySelectorAll('button'))
-      .map(b => clean(b.textContent)).filter(Boolean).slice(0, 20);
-    const cards = document.querySelectorAll('.proj-card, .project-card, .demo-card, .card').length;
+      .map(b => cleanText(b.textContent)).filter(Boolean).slice(0, 24);
+    const links = Array.from(document.querySelectorAll('a[href]'))
+      .map(a => ({ text: cleanText(a.textContent).slice(0, 36), href: a.getAttribute('href') }))
+      .filter(l => l.href && !/^(#|mailto:|tel:|javascript:)/i.test(l.href)).slice(0, 50);
+    const internal = Array.from(new Set(links
+      .map(l => l.href.split('#')[0].split('?')[0])
+      .filter(h => h && !/^(https?:)?\/\//i.test(h) && /\.(html?|php)$|\/$/.test(h)))).slice(0, 8);
+    const data = window.PROJECT_DATA || {};
     return {
       page: location.pathname.split('/').pop() || 'index.html',
       title: document.title,
       heading: headings[0] || '',
-      headings, sections, buttons, cards
+      headings, sections, buttons, links, internal,
+      cards: document.querySelectorAll('.proj-card, .project-card, .demo-card, .card').length,
+      images: document.images.length,
+      demos: (data.demos || []).length,
+      categories: data.categories ? Object.keys(data.categories).length : 0
     };
   }
   const site = crawlSite();
+
+  /* quietly visit the other pages once so Bob can talk about the whole site */
+  let siteMap = {};
+  async function crawlOtherPages() {
+    try {
+      const cached = sessionStorage.getItem('bobSiteMap');
+      if (cached) { siteMap = JSON.parse(cached) || {}; return; }
+      const paths = Array.from(new Set(['showcase.html', 'resume.html'].concat(site.internal)))
+        .filter(p => p && !/^(https?:)?\/\//i.test(p)).slice(0, 5);
+      await Promise.all(paths.map(async path => {
+        try {
+          const res = await fetch(path, { credentials: 'same-origin' });
+          if (!res.ok) return;
+          const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+          siteMap[path] = {
+            title: doc.title,
+            sections: Array.from(doc.querySelectorAll('section[id]')).map(s => ({
+              id: s.id,
+              label: cleanText((s.querySelector('h2, h3') || {}).textContent || s.id)
+            })),
+            projects: doc.querySelectorAll('.proj-card').length,
+            links: doc.querySelectorAll('a[href]').length
+          };
+        } catch (e) { /* file:// or blocked — local crawl still works */ }
+      }));
+      if (Object.keys(siteMap).length) sessionStorage.setItem('bobSiteMap', JSON.stringify(siteMap));
+    } catch (e) { /* storage can be disabled — no problem */ }
+  }
+  crawlOtherPages();
 
   const reactTimers = {};
   let nudgeTimer = null;
@@ -173,10 +214,12 @@
 
   function contextHint() {
     const p = site.page;
+    const mapped = Object.keys(siteMap).length;
     if (p.indexOf('showcase') > -1) return 'Psst… try Search or Shuffle 🔍';
     if (p.indexOf('resume') > -1) return 'The CV is right here 📄';
     if (site.buttons.some(b => /shuffle/i.test(b))) return 'Bored? Hit Shuffle 🎲';
-    if (site.headings.some(h => /project/i.test(h))) return '106 projects up there 👆';
+    if (site.cards || site.demos) return `${site.cards || site.demos} things to explore up there 👆`;
+    if (mapped) return `I’ve mapped ${mapped} pages — ask me where anything lives 🗺️`;
     return 'Bored? Ask me something 👀';
   }
 
@@ -220,38 +263,55 @@
   const zoneEls = Array.from(document.querySelectorAll('section[id], footer, .contact'))
     .filter((el, i, arr) => arr.indexOf(el) === i);
   const POSES = [
-    { test: /top|hero/i,              x:   0, y:   0, mood: 'curious', text: 'Off we go! 👀' },
-    { test: /featured|spotlight/i,    x: -62, y: -22, mood: 'curious', text: 'Featured picks ✨' },
-    { test: /carousel|try-websites|reel/i, x: -118, y: -54, mood: 'excited', text: 'Website demos 🌐' },
-    { test: /showcase|all|projects/i, x: -168, y: -34, mood: 'curious', text: '106 projects in here 📦' },
-    { test: /about|skill/i,           x: -96, y: -64, mood: 'curious', text: 'The human behind it 👤' },
-    { test: /contact|footer/i,        x: -186, y: -18, mood: 'excited', text: 'Say hi — I dare you ✉️' }
+    { test: /top|hero/i,                  x:    0, y:    0, mood: 'curious', text: 'Off we go! 👀' },
+    { test: /featured|spotlight/i,        x: -110, y: -120, mood: 'curious', text: 'Featured picks ✨' },
+    { test: /carousel|try-websites|reel/i, x: -235, y: -205, mood: 'excited', text: 'Website demos 🌐' },
+    { test: /showcase|all|projects/i,     x: -350, y:  -90, mood: 'curious', text: 'Projects everywhere 📦' },
+    { test: /about|skill/i,               x: -190, y: -255, mood: 'curious', text: 'The human behind it 👤' },
+    { test: /contact|footer/i,            x: -395, y: -150, mood: 'excited', text: 'Say hi — I dare you ✉️' }
   ];
-  const FALLBACK = { x: -80, y: -30, mood: 'curious', text: 'I wander too 👀' };
+  const FALLBACK = { x: -150, y: -110, mood: 'curious', text: 'I wander too 👀' };
   let currentZone = null;
   let lastZoneChange = 0;
   let scrollRAF = null;
+  let travelTimer = null;
 
-  function poseFor(key, progress) {
+  function poseFor(key, local) {
     const hit = POSES.find(p => p.test.test(key));
     const base = hit || FALLBACK;
-    // gentle sway so he never looks glued to one spot
-    const swayX = Math.sin(progress * Math.PI * 6) * 16;
-    const swayY = Math.cos(progress * Math.PI * 4) * 11;
+    /* walk across each section instead of circling one spot */
+    const walkX = (local - .5) * 90;
+    const walkY = Math.sin(local * Math.PI) * 55;
     const w = window.innerWidth || 1000;
-    const room = w < 420 ? .42 : w < 700 ? .62 : w < 1000 ? .82 : 1;
+    const h = window.innerHeight || 700;
+    const room = w < 420 ? .40 : w < 700 ? .60 : w < 1000 ? .82 : 1;
+    const maxUp = Math.max(40, h - 190);
     return {
-      x: Math.round(base.x * room + swayX),
-      y: Math.round(base.y + swayY),
+      x: Math.round(base.x * room + walkX * room),
+      y: -Math.min(maxUp, Math.max(0, Math.abs(base.y) + walkY)),
       mood: base.mood,
       text: base.text
     };
+  }
+
+  function zoneMessage(pose, key) {
+    if (/showcase|all|projects/i.test(key)) {
+      const map = siteMap['showcase.html'];
+      const n = (map && map.projects) || site.cards || 106;
+      return `${n} projects waiting in /showcase.html 📦`;
+    }
+    if (/about/i.test(key) && siteMap['resume.html']) return 'His whole CV is in /resume.html 📄';
+    return pose.text;
   }
 
   function applyDrift(x, y) {
     /* set on the shared root so Bob and his bubble glide together */
     root.style.setProperty('--bob-drift-x', x + 'px');
     root.style.setProperty('--bob-drift-y', y + 'px');
+    /* little walking wobble while he is changing place */
+    fab.classList.add('is-traveling');
+    clearTimeout(travelTimer);
+    travelTimer = setTimeout(() => fab.classList.remove('is-traveling'), 650);
   }
 
   function updateScrollJourney() {
@@ -269,15 +329,14 @@
       if (top <= line) { active = el; activeTop = top; } else break;
     }
 
-    let key = 'top';
+    let key = 'top', local = progress;
     if (active) {
       key = active.id || String(active.className || '').split(/\s+/)[0] || 'section';
-      const local = active.offsetHeight > 0
+      local = active.offsetHeight > 0
         ? Math.min(1, Math.max(0, (y - activeTop) / active.offsetHeight)) : progress;
-      key += ' ' + (local > .66 ? 'end' : local > .33 ? 'mid' : 'start');
     }
 
-    const pose = poseFor(key, progress);
+    const pose = poseFor(key, local);
     applyDrift(pose.x, pose.y);
 
     /* react when he actually arrives at a new place — no spam while scrolling fast */
@@ -286,7 +345,7 @@
       currentZone = place;
       lastZoneChange = Date.now();
       if (pose.mood) react(pose.mood, 1100);
-      if (pose.text) nudge(pose.text, null, 2800);
+      nudge(zoneMessage(pose, key), null, 3000);
     }
   }
 
@@ -322,6 +381,22 @@
     if (!label) return;
     react('curious', 900);
     nudge(label + ' ↗', null, 3200);
+  }, { passive: true });
+
+  /* hovering any link — Bob reads where it goes (full-site crawl in action) */
+  let lastLinkHint = 0;
+  document.addEventListener('pointerover', e => {
+    if (open || !e.target.closest) return;
+    const link = e.target.closest('a[href]');
+    if (!link || (e.target instanceof Node && root.contains(link))) return;
+    const now = Date.now();
+    if (now - lastLinkHint < 9000) return;
+    lastLinkHint = now;
+    const href = link.getAttribute('href') || '';
+    const label = cleanText(link.textContent).slice(0, 26) || href;
+    const known = siteMap[href.split('#')[0]];
+    react('curious', 800);
+    nudge(known ? `That goes to ${known.title || href} ↗` : `Opening ${label} ↗`, null, 2600);
   }, { passive: true });
 
   /* typing — curious face */

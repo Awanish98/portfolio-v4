@@ -16,11 +16,6 @@
   root.className = 'bob-root';
   root.id = 'bobRoot';
   root.innerHTML = `
-    <div class="bob-bench" aria-hidden="true">
-      <span class="bob-bench-plank"></span>
-      <span class="bob-bench-leg bob-bench-leg--l"></span>
-      <span class="bob-bench-leg bob-bench-leg--r"></span>
-    </div>
     <div class="bob-tooltip" id="bobTip">Hello!</div>
     <button class="bob-fab" id="bobFab" type="button" aria-label="Open Bob, the portfolio assistant" aria-expanded="false">
       <span class="bob-fab-ring" aria-hidden="true"></span>
@@ -37,10 +32,6 @@
           <span class="bob-arm bob-arm--l"></span>
           <span class="bob-arm bob-arm--r"></span>
           <span class="bob-side"></span>
-        </span>
-        <span class="bob-legs">
-          <span class="bob-leg bob-leg--l"><i></i></span>
-          <span class="bob-leg bob-leg--r"><i></i></span>
         </span>
         <span class="bob-shadow"></span>
         <span class="bob-zzz" aria-hidden="true">z z z</span>
@@ -94,11 +85,9 @@
 
   /* ---------- robot state + micro-animations ---------- */
   root.dataset.state = 'idle';
-  const IDLE_ANTICS = ['is-yawning', 'is-tapping', 'is-peeking', 'is-hop'];
-  const clearAntics = () => fab.classList.remove(...IDLE_ANTICS);
   const setState = state => {
     root.dataset.state = state;
-    if (state !== 'idle') fab.classList.remove('is-bored', 'is-excited', 'is-curious', 'is-pop', ...IDLE_ANTICS);
+    if (state !== 'idle') fab.classList.remove('is-bored', 'is-excited', 'is-curious', 'is-pop');
   };
   let speechToken = 0;
 
@@ -117,25 +106,6 @@
     }, 2600 + Math.random() * 3400);
   }
   scheduleBlink();
-
-  /* Bob is comfy on his bench — every so often he pulls a silly idle stunt. */
-  function scheduleAntics() {
-    setTimeout(() => {
-      const calm = !open && !busy && !document.hidden &&
-        root.dataset.state === 'idle' &&
-        !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (calm) {
-        const stunt = IDLE_ANTICS[Math.floor(Math.random() * IDLE_ANTICS.length)];
-        clearAntics();
-        void fab.offsetWidth; /* restart the CSS animation */
-        fab.classList.add(stunt);
-        const hold = stunt === 'is-yawning' ? 2600 : stunt === 'is-tapping' ? 1900 : 1400;
-        setTimeout(() => fab.classList.remove(stunt), hold);
-      }
-      scheduleAntics();
-    }, 6500 + Math.random() * 7000);
-  }
-  scheduleAntics();
 
   /* eyes follow the cursor while Bob is idle */
   document.addEventListener('mousemove', e => {
@@ -180,7 +150,7 @@
 
   /* short-lived expression on the mascot */
   function react(mood, ms = 1000) {
-    fab.classList.remove('is-bored', 'is-excited', 'is-curious', 'is-pop', ...IDLE_ANTICS);
+    fab.classList.remove('is-bored', 'is-excited', 'is-curious', 'is-pop');
     void fab.offsetWidth; /* restart CSS animation */
     fab.classList.add('is-' + mood);
     clearTimeout(reactTimers[mood]);

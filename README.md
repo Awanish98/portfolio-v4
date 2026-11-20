@@ -45,4 +45,5 @@ Voice input uses the browser Speech Recognition API (Chrome/Edge), voice output 
 - `resume.html` — CV
 - `styles.css`, `glass.css`, `carousel.css` — styling
 - `corner-widgets.js`, `corner-widgets.css` — compact nav clock/weather chip (Open-Meteo, no key) + play/mute ambient soundscape (Web Audio, no audio file)
+- `responsive.css` — global responsive hardening: phones (320px+), tablets, laptops and short landscape; collision-free nav drawer, scrollable landscape menu, safe-area aware Bob, clipped decorative overflow
 - `bob.js`, `bob.css`, `netlify/functions/bob-chat.mjs` — assistant

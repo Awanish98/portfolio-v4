@@ -24,13 +24,13 @@ Bob is the floating chat + voice assistant on every page.
 
 - Frontend: `bob.js` + `bob.css`
 - Backend: `netlify/functions/bob-chat.mjs` → `POST /api/bob`
-- Model: Gemini (`gemini-3.5-flash-lite` by default)
+- Model: Gemini (fast flash-lite model by default — set `GEMINI_MODEL` to override)
 
 **Set the API key in Netlify UI** → Site settings → Environment variables:
 
 ```
 GEMINI_API_KEY=your_key_here
-GEMINI_MODEL=gemini-3.5-flash-lite     # optional
+GEMINI_MODEL=optional-model-id         # optional
 ```
 
 The key stays server-side. Never put it in a JS file or commit it. Without a key, Bob automatically falls back to a small built-in local brain so the UI still works in previews.

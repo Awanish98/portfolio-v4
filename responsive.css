@@ -9,6 +9,18 @@ img, svg, video, canvas { max-width: 100%; }
 /* Decorative layers must never create horizontal scroll. */
 html, body { overflow-x: clip; }
 
+/* ---------- Netlify injected "Powered by Netlify" badge ---------- */
+/* Netlify adds this iframe at the edge; keep the portfolio UI clean. */
+#nl-badge-frame {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  filter: blur(14px) !important;
+  pointer-events: none !important;
+}
+/* Bob stays above any injected overlay, even if Netlify re-adds it. */
+.bob-root { z-index: 2147483646 !important; }
+
 /* Grid/flex children must be allowed to shrink below their content width. */
 .sh-hero-inner > *, .hero-inner > *, .about-grid > *,
 .featured-grid > *, .proj-grid > *, .cat-grid > *,

@@ -34,6 +34,7 @@
           <span class="bob-side"></span>
         </span>
         <span class="bob-shadow"></span>
+        <span class="bob-zzz" aria-hidden="true">z z z</span>
       </span>
     </button>
     <section class="bob-panel" id="bobPanel" role="dialog" aria-label="Bob, portfolio assistant" aria-hidden="true">
@@ -84,7 +85,10 @@
 
   /* ---------- robot state + micro-animations ---------- */
   root.dataset.state = 'idle';
-  const setState = state => { root.dataset.state = state; };
+  const setState = state => {
+    root.dataset.state = state;
+    if (state !== 'idle') fab.classList.remove('is-bored', 'is-excited', 'is-curious', 'is-pop');
+  };
   let speechToken = 0;
 
   function wave() {
@@ -113,6 +117,153 @@
     fab.style.setProperty('--eye-y', (dy * 3.2).toFixed(1) + 'px');
     fab.style.setProperty('--tilt', (dx * 5).toFixed(1) + 'deg');
   }, { passive: true });
+
+  /* ==========================================================
+     REACTIVE ENGINE — Bob reads the page and reacts to the user
+     ========================================================== */
+
+  /* crawl the current page so Bob knows what's around him */
+  function crawlSite() {
+    const clean = s => (s || '').replace(/\s+/g, ' ').trim();
+    const headings = Array.from(document.querySelectorAll('h1, h2, h3'))
+      .map(h => clean(h.textContent)).filter(Boolean).slice(0, 12);
+    const sections = Array.from(document.querySelectorAll('[id]'))
+      .map(el => ({
+        id: el.id,
+        label: clean(el.getAttribute('aria-label') || (el.querySelector('h2, h3') && el.querySelector('h2, h3').textContent) || el.id)
+      }))
+      .filter(s => s.label && s.label.length < 60).slice(0, 18);
+    const buttons = Array.from(document.querySelectorAll('button'))
+      .map(b => clean(b.textContent)).filter(Boolean).slice(0, 20);
+    const cards = document.querySelectorAll('.proj-card, .project-card, .demo-card, .card').length;
+    return {
+      page: location.pathname.split('/').pop() || 'index.html',
+      title: document.title,
+      heading: headings[0] || '',
+      headings, sections, buttons, cards
+    };
+  }
+  const site = crawlSite();
+
+  const reactTimers = {};
+  let nudgeTimer = null;
+
+  /* short-lived expression on the mascot */
+  function react(mood, ms = 1000) {
+    fab.classList.remove('is-bored', 'is-excited', 'is-curious', 'is-pop');
+    void fab.offsetWidth; /* restart CSS animation */
+    fab.classList.add('is-' + mood);
+    clearTimeout(reactTimers[mood]);
+    reactTimers[mood] = setTimeout(() => fab.classList.remove('is-' + mood), ms);
+  }
+
+  /* temporary speech bubble message */
+  function nudge(text, mood, ms = 4000) {
+    if (open) return;
+    tip.textContent = text;
+    tip.classList.add('is-nudge');
+    if (mood) react(mood, ms);
+    clearTimeout(nudgeTimer);
+    nudgeTimer = setTimeout(() => {
+      tip.textContent = 'Hello!';
+      tip.classList.remove('is-nudge');
+      nudgeTimer = null;
+    }, ms);
+  }
+
+  function contextHint() {
+    const p = site.page;
+    if (p.indexOf('showcase') > -1) return 'Psst… try Search or Shuffle 🔍';
+    if (p.indexOf('resume') > -1) return 'The CV is right here 📄';
+    if (site.buttons.some(b => /shuffle/i.test(b))) return 'Bored? Hit Shuffle 🎲';
+    if (site.headings.some(h => /project/i.test(h))) return '106 projects up there 👆';
+    return 'Bored? Ask me something 👀';
+  }
+
+  /* activity / boredom tracking */
+  let lastActive = Date.now();
+  let boredStage = 0;
+  function markActive() {
+    lastActive = Date.now();
+    if (boredStage) {
+      boredStage = 0;
+      fab.classList.remove('is-bored');
+      clearTimeout(nudgeTimer);
+      tip.textContent = 'Hello!';
+      tip.classList.remove('is-nudge');
+      nudgeTimer = null;
+    }
+  }
+  ['pointermove', 'pointerdown', 'scroll', 'keydown', 'touchstart'].forEach(ev =>
+    window.addEventListener(ev, markActive, { passive: true }));
+
+  setInterval(() => {
+    if (open) return;
+    const secs = (Date.now() - lastActive) / 1000;
+    if (secs > 15 && boredStage === 0) {
+      boredStage = 1;
+      fab.classList.add('is-bored');
+      nudge('👀', null, 3000);
+    } else if (secs > 32 && boredStage === 1) {
+      boredStage = 2;
+      nudge(contextHint(), null, 6500);
+    } else if (secs > 55 && boredStage === 2) {
+      boredStage = 3;
+      nudge('Tap me — I’m lonely! 🥺', 'excited', 5000);
+      lastActive = Date.now() - 30000; /* cooldown before next cycle */
+    }
+  }, 3000);
+
+  /* scrolling — one contextual nudge per page */
+  let scrollHintDone = false;
+  window.addEventListener('scroll', () => {
+    if (!scrollHintDone && !open && (window.scrollY || 0) > 420) {
+      scrollHintDone = true;
+      react('curious', 900);
+      nudge('Scrolling? Try Shuffle 🎲', null, 3500);
+    }
+  }, { passive: true });
+
+  /* click — eyes dart to the click, tiny pop */
+  window.addEventListener('pointerdown', e => {
+    if (e.target instanceof Node && root.contains(e.target)) return;
+    const r = fab.getBoundingClientRect();
+    const dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / 260));
+    const dy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / 260));
+    fab.style.setProperty('--eye-x', (dx * 3.2).toFixed(1) + 'px');
+    fab.style.setProperty('--eye-y', (dy * 3.2).toFixed(1) + 'px');
+    react('pop', 450);
+  }, { passive: true });
+
+  /* hovering a project card — Bob peeks at it */
+  let lastCardHint = 0;
+  document.addEventListener('pointerover', e => {
+    if (open || !e.target.closest) return;
+    const card = e.target.closest('.proj-card, .project-card, .demo-card');
+    if (!card || (e.target instanceof Node && root.contains(e.target))) return;
+    const now = Date.now();
+    if (now - lastCardHint < 10000) return;
+    lastCardHint = now;
+    const label = (card.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 32);
+    if (!label) return;
+    react('curious', 900);
+    nudge(label + ' ↗', null, 3200);
+  }, { passive: true });
+
+  /* typing — curious face */
+  input.addEventListener('input', () => {
+    if (input.value) react('curious', 800);
+  });
+
+  /* idle while chat is open — a gentle proactive prompt (once) */
+  let idleChatDone = false;
+  setInterval(() => {
+    if (!open || busy || idleChatDone) return;
+    if (Date.now() - lastActive > 28000 && messages.children.length <= 2) {
+      idleChatDone = true;
+      addMessage('bot', 'Still there? Try “Show me a restaurant website” or open the Showcase ↗');
+    }
+  }, 5000);
 
   /* ---------- safe text rendering (auto-linkify, no innerHTML from model) ---------- */
   function putText(el, text) {
@@ -157,6 +308,12 @@
     const data = window.PROJECT_DATA;
     const demos = (data && data.demos) || [];
 
+    if (/(bored|entertain|fun|joke|surprise me|something else)/.test(s))
+      return 'Bored? Hit the Shuffle button on the Showcase 🎲 — it throws a random project at you. Or ask me for a restaurant website demo!';
+    if (/(this page|current page|what.s on|site map|what can i see|where am i|what.s here)/.test(s)) {
+      const secs = site.sections.slice(0, 4).map(x => x.label).join(', ');
+      return `You're on ${site.title || site.page}.${secs ? ' On this page: ' + secs + '.' : ''} Ask me about projects, demos, the resume or contact.`;
+    }
     if (/^(hi|hello|hey|namaste|yo|good (morning|evening))\b/.test(s))
       return 'Hey! I’m Bob 👋 Ask me about the 106 projects, the 50 business website demos, the resume, or how to reach Awanish.';
     if (/(resume|cv|biography|qualification)/.test(s))

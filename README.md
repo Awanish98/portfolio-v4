@@ -1,6 +1,6 @@
 # Awanish Kumar
 
-Software developer from India, also known as Jordan. This is the multi-page portfolio: featured websites, a rotating all-projects carousel, a complete 106-project showcase and a CV. Every page also has a live date/weather card and a toggleable generative ambient soundtrack in the bottom-left corner.
+Software developer from India, also known as Jordan. This is the multi-page portfolio: featured websites, a rotating all-projects carousel, a complete 106-project showcase and a CV. Every page also has a compact live clock/weather chip in the nav bar with a toggleable generative ambient soundtrack — no audio file or API key needed.
 
 Live: **https://awanish98.github.io/portfolio-v4/**
 
@@ -44,5 +44,5 @@ Voice input uses the browser Speech Recognition API (Chrome/Edge), voice output 
 - `projects-data.js` — one shared project dataset
 - `resume.html` — CV
 - `styles.css`, `glass.css`, `carousel.css` — styling
-- `corner-widgets.js`, `corner-widgets.css` — live date/weather (Open-Meteo, no key) + play/mute ambient soundscape (Web Audio, no audio file)
+- `corner-widgets.js`, `corner-widgets.css` — compact nav clock/weather chip (Open-Meteo, no key) + play/mute ambient soundscape (Web Audio, no audio file)
 - `bob.js`, `bob.css`, `netlify/functions/bob-chat.mjs` — assistant

@@ -1,43 +1,33 @@
 /* ============================================================
-   CORNER WIDGETS
-   1) Live date + weather (Open-Meteo + IP location, no API key)
-   2) Generative ambient soundscape (Web Audio, play/mute toggle)
+   NAV WIDGET — compact live clock + weather + ambient audio
+   Weather: Open-Meteo (no key) · Sound: Web Audio (no file)
    ============================================================ */
 (function () {
   'use strict';
 
   const $ = id => document.getElementById(id);
-  let root = $('cwRoot');
-  if (!root) {
-    document.body.insertAdjacentHTML('beforeend',
-      '<div class="cw-root" id="cwRoot">' +
-        '<div class="cw-card" id="cwWeather" role="status" aria-live="polite" title="Live weather · tap to refresh">' +
-          '<div class="cw-wx-top">' +
-            '<span class="cw-icon" id="cwIcon" aria-hidden="true"></span>' +
-            '<span class="cw-date"><strong id="cwDay">—</strong><small id="cwTime">—</small></span>' +
-            '<span class="cw-temp" id="cwTemp">··°</span>' +
-          '</div>' +
-          '<div class="cw-wx-sub"><b id="cwCond">Locating you…</b><i class="cw-sep"></i><span id="cwCity">—</span></div>' +
-          '<div class="cw-meta"><span id="cwHum">—</span><span id="cwWind">—</span></div>' +
-        '</div>' +
-        '<button class="cw-sound" id="cwSound" type="button" aria-pressed="false" aria-label="Play ambient music" title="Play ambient music">' +
-          '<span class="cw-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>' +
-          '<span class="cw-sound-label" id="cwSoundLabel">Ambient</span>' +
-          '<span class="cw-sound-ico" id="cwSoundIco" aria-hidden="true"></span>' +
-        '</button>' +
-      '</div>');
-    root = $('cwRoot');
-  }
-  if (!root) return;
+  const old = $('cwRoot');
+  if (old && old.parentNode) old.parentNode.removeChild(old);
 
-  const card = $('cwWeather');
-  const cwIcon = $('cwIcon'), cwDay = $('cwDay'), cwTime = $('cwTime');
-  const cwTemp = $('cwTemp'), cwCond = $('cwCond'), cwCity = $('cwCity');
-  const cwHum = $('cwHum'), cwWind = $('cwWind');
-  const sound = $('cwSound'), soundLabel = $('cwSoundLabel'), soundIco = $('cwSoundIco');
+  const holder = document.createElement('div');
+  holder.innerHTML =
+    '<div class="cw-chip" id="cwRoot" aria-label="Live clock and weather">' +
+      '<span class="cw-chip-icon" id="cwIcon" aria-hidden="true"></span>' +
+      '<span class="cw-chip-temp" id="cwTemp" title="Loading weather">--°</span>' +
+      '<span class="cw-chip-time" id="cwTime" title="">--:--</span>' +
+      '<button class="cw-chip-sound" id="cwSound" type="button" aria-pressed="false" aria-label="Play ambient music" title="Play ambient music">' +
+        '<span class="cw-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>' +
+      '</button>' +
+    '</div>';
+  const root = holder.firstElementChild;
+  const host = document.querySelector('.nav') || document.querySelector('.print-bar') || document.body;
+  host.insertBefore(root, host.querySelector('.nav-cta, .btn-print') || null);
+  if (!$('cwRoot')) return;
+
+  const cwIcon = $('cwIcon'), cwTemp = $('cwTemp'), cwTime = $('cwTime'), sound = $('cwSound');
 
   /* ---------------------------------------------------------
-     1. DATE + WEATHER
+     1. WEATHER + CLOCK
      --------------------------------------------------------- */
   const ICONS = {
     clear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M2.4 12h2.2M19.4 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/></svg>',
@@ -49,7 +39,6 @@
     fog: '<svg viewBox="0 0 24 24"><path d="M7.2 13.6h9.6a3.2 3.2 0 0 0 .2-6.4 4.6 4.6 0 0 0-8.7-1.1 3.8 3.8 0 0 0-1.1 7.5z"/><path d="M5.5 17h13M7.5 20h9"/></svg>'
   };
   const ICON_COLORS = { clear: '#ffd166', partly: '#ffd980', cloud: '#cfe4ec', rain: '#7fd8ff', snow: '#dff4ff', storm: '#c9b6ff', fog: '#cbd5df' };
-
   function setIcon(kind) {
     cwIcon.innerHTML = ICONS[kind] || ICONS.cloud;
     cwIcon.style.color = ICON_COLORS[kind] || ICON_COLORS.cloud;
@@ -81,13 +70,14 @@
   }
 
   let tz = 'Asia/Kolkata';
-  function fmt(opts, d) {
-    try { return new Intl.DateTimeFormat('en-GB', Object.assign({ timeZone: tz }, opts)).format(d || new Date()); }
-    catch (e) { return new Intl.DateTimeFormat('en-GB', opts).format(d || new Date()); }
+  function fmt(opts) {
+    const d = new Date();
+    try { return new Intl.DateTimeFormat('en-GB', Object.assign({ timeZone: tz }, opts)).format(d); }
+    catch (e) { return new Intl.DateTimeFormat('en-GB', opts).format(d); }
   }
   function tick() {
-    cwDay.textContent = fmt({ weekday: 'short', day: '2-digit', month: 'short' });
-    cwTime.textContent = fmt({ hour: 'numeric', minute: '2-digit', hour12: true });
+    cwTime.textContent = fmt({ hour: '2-digit', minute: '2-digit', hour12: true });
+    cwTime.title = fmt({ weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
   }
   tick();
   setInterval(tick, 1000);
@@ -114,10 +104,10 @@
   }
 
   async function load(force) {
-    card.classList.add('is-loading');
-    card.classList.remove('is-clickable');
+    root.classList.add('is-loading');
+    root.classList.remove('is-retry');
     cwTemp.textContent = '··°';
-    cwCond.textContent = 'Locating you…';
+    root.title = 'Locating you…';
     try {
       let geo = force ? null : cacheGet(GEO_KEY);
       if (!geo) {
@@ -140,7 +130,7 @@
           }
         ];
         for (const provider of providers) {
-          try { geo = await provider(); break; } catch (e) { /* try next provider */ }
+          try { geo = await provider(); break; } catch (e) { /* try next */ }
         }
         if (!geo) throw new Error('location');
         cacheSet(GEO_KEY, geo);
@@ -168,29 +158,30 @@
       }
       if (wx.tz) { tz = wx.tz; tick(); }
 
+      const place = geo.city + (geo.region ? ', ' + geo.region : '');
+      const full = condition(wx.code) + ' · ' + wx.temp + '°C · feels ' + wx.feels + '° · ' + place +
+        ' · ' + wx.hum + '% humidity · ' + wx.wind + ' km/h wind';
       setIcon(iconKind(wx.code));
       cwTemp.textContent = wx.temp + '°';
-      cwCond.textContent = condition(wx.code) + ' · feels ' + wx.feels + '°';
-      cwCity.textContent = geo.city + (geo.region ? ', ' + geo.region : '');
-      cwHum.textContent = wx.hum + '% humidity';
-      cwWind.textContent = wx.wind + ' km/h wind';
-      card.title = 'Live weather · tap to refresh';
+      cwTemp.title = full;
+      root.title = full;
     } catch (e) {
       setIcon('cloud');
       cwTemp.textContent = '—°';
-      cwCond.textContent = 'Weather offline';
-      cwCity.textContent = 'Tap to retry';
-      cwHum.textContent = cwWind.textContent = '';
-      card.classList.add('is-clickable');
-      card.title = 'Tap to retry weather';
+      cwTemp.title = 'Weather offline — click to retry';
+      root.title = 'Weather offline — click to retry';
+      root.classList.add('is-retry');
     } finally {
-      card.classList.remove('is-loading');
+      root.classList.remove('is-loading');
     }
   }
-  card.addEventListener('click', () => load(true));
+  root.addEventListener('click', e => {
+    if (e.target && e.target.closest && e.target.closest('#cwSound')) return;
+    if (!root.classList.contains('is-loading')) load(true);
+  });
 
   /* ---------------------------------------------------------
-     2. AMBIENT MUSIC — soft generative pad, no audio file
+     2. AMBIENT MUSIC — soft generative pad, play/mute toggle
      --------------------------------------------------------- */
   const WANT_KEY = 'cwAmbientOn';
   const CHORDS = [
@@ -199,16 +190,12 @@
     [220.00, 261.63, 329.63, 392.00], // Am7
     [164.81, 261.63, 329.63, 392.00]  // Cmaj7
   ];
-  const ICO_PLAY = '<svg viewBox="0 0 16 16"><path d="M4.6 2.6v10.8L13 8z"/></svg>';
-  const ICO_PAUSE = '<svg viewBox="0 0 16 16"><rect x="3.8" y="2.8" width="3.1" height="10.4" rx="1"/><rect x="9.1" y="2.8" width="3.1" height="10.4" rx="1"/></svg>';
 
   let ctx = null, master = null, tone = null;
   let chordTimer = null, fadeTimer = null, voices = [], chordIndex = 0, playing = false;
 
   function setUI(on) {
     sound.classList.toggle('is-playing', on);
-    soundLabel.textContent = on ? 'Playing' : (ctx ? 'Muted' : 'Ambient');
-    soundIco.innerHTML = on ? ICO_PAUSE : ICO_PLAY;
     sound.setAttribute('aria-pressed', on ? 'true' : 'false');
     sound.setAttribute('aria-label', on ? 'Mute ambient music' : 'Play ambient music');
     sound.title = on ? 'Mute ambient music' : 'Play ambient music';
@@ -267,7 +254,6 @@
     const now = ctx.currentTime, dur = 8.5;
     const chord = CHORDS[chordIndex++ % CHORDS.length];
     const nodes = [];
-
     chord.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       osc.type = i % 2 ? 'sine' : 'triangle';
@@ -286,7 +272,6 @@
       osc.start(now); osc.stop(now + dur + .1);
       nodes.push(osc, lfo);
     });
-
     voices.push({ nodes: nodes, until: now + dur });
     voices = voices.filter(v => {
       if (v.until < now - .5) {
@@ -295,12 +280,12 @@
       }
       return true;
     });
-    chordTimer = setTimeout(playChord, (dur - 2) * 1000); /* 2s crossfade */
+    chordTimer = setTimeout(playChord, (dur - 2) * 1000);
   }
 
   function start() {
     if (playing) return;
-    if (!ensureAudio()) { soundLabel.textContent = 'Unavailable'; return; }
+    if (!ensureAudio()) { sound.title = 'Audio unavailable'; return; }
     playing = true;
     ctx.resume().catch(() => {});
     clearTimeout(fadeTimer);
@@ -330,7 +315,7 @@
 
   sound.addEventListener('click', () => { playing ? stop() : start(); });
 
-  /* continue the vibe across pages: resume on first user gesture if it was on */
+  /* resume across pages on first gesture if the user left it on */
   try {
     if (localStorage.getItem(WANT_KEY) === '1') {
       const resume = e => {

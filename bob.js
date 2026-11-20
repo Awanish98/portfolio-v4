@@ -214,15 +214,89 @@
     }
   }, 3000);
 
-  /* scrolling — one contextual nudge per page */
-  let scrollHintDone = false;
-  window.addEventListener('scroll', () => {
-    if (!scrollHintDone && !open && (window.scrollY || 0) > 420) {
-      scrollHintDone = true;
-      react('curious', 900);
-      nudge('Scrolling? Try Shuffle 🎲', null, 3500);
+  /* ==========================================================
+     SCROLL JOURNEY — Bob wanders around and greets each section
+     ========================================================== */
+  const zoneEls = Array.from(document.querySelectorAll('section[id], footer, .contact'))
+    .filter((el, i, arr) => arr.indexOf(el) === i);
+  const POSES = [
+    { test: /top|hero/i,              x:   0, y:   0, mood: 'curious', text: 'Off we go! 👀' },
+    { test: /featured|spotlight/i,    x: -62, y: -22, mood: 'curious', text: 'Featured picks ✨' },
+    { test: /carousel|try-websites|reel/i, x: -118, y: -54, mood: 'excited', text: 'Website demos 🌐' },
+    { test: /showcase|all|projects/i, x: -168, y: -34, mood: 'curious', text: '106 projects in here 📦' },
+    { test: /about|skill/i,           x: -96, y: -64, mood: 'curious', text: 'The human behind it 👤' },
+    { test: /contact|footer/i,        x: -186, y: -18, mood: 'excited', text: 'Say hi — I dare you ✉️' }
+  ];
+  const FALLBACK = { x: -80, y: -30, mood: 'curious', text: 'I wander too 👀' };
+  let currentZone = null;
+  let lastZoneChange = 0;
+  let scrollRAF = null;
+
+  function poseFor(key, progress) {
+    const hit = POSES.find(p => p.test.test(key));
+    const base = hit || FALLBACK;
+    // gentle sway so he never looks glued to one spot
+    const swayX = Math.sin(progress * Math.PI * 6) * 16;
+    const swayY = Math.cos(progress * Math.PI * 4) * 11;
+    const w = window.innerWidth || 1000;
+    const room = w < 420 ? .42 : w < 700 ? .62 : w < 1000 ? .82 : 1;
+    return {
+      x: Math.round(base.x * room + swayX),
+      y: Math.round(base.y + swayY),
+      mood: base.mood,
+      text: base.text
+    };
+  }
+
+  function applyDrift(x, y) {
+    /* set on the shared root so Bob and his bubble glide together */
+    root.style.setProperty('--bob-drift-x', x + 'px');
+    root.style.setProperty('--bob-drift-y', y + 'px');
+  }
+
+  function updateScrollJourney() {
+    scrollRAF = null;
+    if (open) { applyDrift(0, 0); return; }
+    const y = window.scrollY || window.pageYOffset || 0;
+    const vh = window.innerHeight || 0;
+    const docH = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - vh;
+    const progress = docH > 0 ? Math.min(1, Math.max(0, y / docH)) : 0;
+    const line = y + vh * .45;
+
+    let active = null, activeTop = 0;
+    for (const el of zoneEls) {
+      const top = el.getBoundingClientRect().top + y;
+      if (top <= line) { active = el; activeTop = top; } else break;
     }
-  }, { passive: true });
+
+    let key = 'top';
+    if (active) {
+      key = active.id || String(active.className || '').split(/\s+/)[0] || 'section';
+      const local = active.offsetHeight > 0
+        ? Math.min(1, Math.max(0, (y - activeTop) / active.offsetHeight)) : progress;
+      key += ' ' + (local > .66 ? 'end' : local > .33 ? 'mid' : 'start');
+    }
+
+    const pose = poseFor(key, progress);
+    applyDrift(pose.x, pose.y);
+
+    /* react when he actually arrives at a new place — no spam while scrolling fast */
+    const place = active || document.body;
+    if (place !== currentZone && Date.now() - lastZoneChange > 300) {
+      currentZone = place;
+      lastZoneChange = Date.now();
+      if (pose.mood) react(pose.mood, 1100);
+      if (pose.text) nudge(pose.text, null, 2800);
+    }
+  }
+
+  function queueScrollJourney() {
+    if (scrollRAF !== null) return;
+    scrollRAF = window.requestAnimationFrame(updateScrollJourney);
+  }
+  window.addEventListener('scroll', queueScrollJourney, { passive: true });
+  window.addEventListener('resize', queueScrollJourney, { passive: true });
+  updateScrollJourney();
 
   /* click — eyes dart to the click, tiny pop */
   window.addEventListener('pointerdown', e => {
@@ -449,19 +523,21 @@
     fab.setAttribute('aria-expanded', String(open));
     tip.classList.toggle('is-hidden', open);
     if (open) {
+      applyDrift(0, 0); /* come back to the corner while chatting */
       setState('idle');
       wave();
       if (!greeted) {
         greeted = true;
         addMessage('bot', 'Hey, I’m Bob! 👋 Ask me about projects, business website demos, the CV or how to get in touch.');
       }
-      setTimeout(() => input.focus(), 260);
+      setTimeout(() => input.focus({ preventScroll: true }), 260);
     } else {
       if (listening && recognition) recognition.stop();
       setListening(false);
       if (synth) synth.cancel();
       speechToken++;
       setState('idle');
+      updateScrollJourney(); /* pick up the wander again */
     }
   }
 

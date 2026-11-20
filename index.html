@@ -4,17 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Awanish Kumar — Software Developer &amp; Automation Engineer</title>
-  <meta name="description" content="Portfolio of Awanish Kumar (Jordan) — software developer building live websites, AI tools, music apps and automation systems. 13 live sites, 52 projects.">
+  <meta name="description" content="Portfolio of Awanish Kumar (Jordan) — featured websites, a rotating carousel of every project, and a link to the complete 106-project showcase.">
   <meta name="theme-color" content="#08070b">
-  <meta property="og:title" content="Awanish Kumar — Software Developer">
-  <meta property="og:description" content="13 live websites · 52 projects · AI, automation and the web.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23d10f34'/><text y='.9em' font-size='72' font-family='Arial Black,sans-serif' font-weight='900' fill='white' x='50%' text-anchor='middle'>A</text></svg>">
+  <meta property="og:title" content="Awanish Kumar — Software Developer &amp; Automation Engineer">
+  <meta property="og:description" content="Software Developer &amp; Automation Engineer · Featured websites, 106 projects, one complete showcase.">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="https://jordan005.netlify.app/hero.jpg">
+  <meta property="og:url" content="https://jordan005.netlify.app">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Awanish Kumar — Software Developer &amp; Automation Engineer">
+  <meta name="twitter:description" content="Featured websites · All-projects carousel · Complete showcase.">
+  <meta name="twitter:image" content="https://jordan005.netlify.app/hero.jpg">
+  <link rel="canonical" href="https://jordan005.netlify.app">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="glass.css">
+  <link rel="stylesheet" href="carousel.css">
 </head>
 <body>
 
@@ -44,11 +53,10 @@
     </button>
     <nav class="nav-links" id="navLinks" aria-label="Main navigation">
       <a href="#featured" class="nav-link">Featured</a>
-      <a href="#business" class="nav-link">Business Sites</a>
-      <a href="showcase.html" class="nav-link">50 Demos <span class="nav-ext">↗</span></a>
-      <a href="#archive" class="nav-link">All Projects</a>
-      <a href="#lab" class="nav-link">In the Lab</a>
+      <a href="#carousel" class="nav-link">All Projects</a>
+      <a href="showcase.html" class="nav-link">Showcase <span class="nav-ext">↗</span></a>
       <a href="#about" class="nav-link">About</a>
+      <a href="resume.html" target="_blank" class="nav-link">Resume <span class="nav-ext">↗</span></a>
     </nav>
     <a class="nav-cta" href="#contact">Let's talk <span>↗</span></a>
   </header>
@@ -57,7 +65,7 @@
     <!-- HERO -->
     <section class="hero" id="top">
       <div class="hero-media" aria-hidden="true">
-        <img src="hero.jpg" alt="">
+        <img src="hero.jpg" alt="" width="1920" height="1080">
         <div class="hero-veil"></div>
       </div>
       <canvas id="starfield" aria-hidden="true"></canvas>
@@ -67,21 +75,33 @@
 
       <div class="container hero-inner">
         <div class="hero-copy">
-          <p class="eyebrow reveal"><span class="live-dot"></span> SOFTWARE DEVELOPER <b>·</b> PYTHON AUTOMATION <b>·</b> AI TOOLS</p>
+          <p class="eyebrow reveal"><span class="live-dot"></span> SOFTWARE DEVELOPER <b>·</b> PYTHON AUTOMATION <b>·</b> AI SYSTEMS</p>
           <h1 class="hero-title">
             <span class="line"><span class="name-first">AWANISH</span></span>
             <span class="line"><span class="outline">KUMAR</span><em>aka <b>JORDAN</b></em></span>
           </h1>
-          <p class="hero-sub reveal">I turn ideas into <strong>fast, beautiful, working</strong> products — from an AI music platform with 40+ mood stations to ten live business websites and a full stack of automation tools.</p>
+          <p class="hero-sub reveal">Software Developer &amp; Automation Engineer turning complex workflows into <strong>fast, resilient, and scalable products</strong>. Specializing in high-performance web applications with React, large-scale Python scraping &amp; automation suites, and multi-agent AI ecosystems that deliver real-world impact.</p>
           <div class="hero-actions reveal">
             <a href="#featured" class="btn btn-primary magnetic">Explore featured work <span>↗</span></a>
-            <a href="#archive" class="btn btn-ghost magnetic">See all 52 projects <span>↓</span></a>
+            <a href="showcase.html" class="btn btn-ghost magnetic">See all 106 projects <span>↗</span></a>
+            <a href="resume.html" target="_blank" class="btn btn-ghost magnetic">View / Download CV <span>↗</span></a>
           </div>
           <div class="hero-socials reveal">
-            <a href="https://github.com/Awanish98" target="_blank" rel="noopener">GitHub ↗</a>
-            <a href="showcase.html">50 Premium Demos ↗</a>
-            <a href="https://jordan005.netlify.app" target="_blank" rel="noopener">Live Portfolio ↗</a>
-            <a href="mailto:awanishkumarrocky552@gmail.com">Email ↗</a>
+            <a class="social-chip" href="https://github.com/Awanish98" target="_blank" rel="noopener">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99-.105.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub <span>↗</span>
+            </a>
+            <a class="social-chip" href="https://linkedin.com/in/awanish-kumar-1a99321b4" target="_blank" rel="noopener">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+              LinkedIn <span>↗</span>
+            </a>
+            <a class="social-chip" href="showcase.html">
+              <span>✦</span> All Projects <span>↗</span>
+            </a>
+            <a class="social-chip" href="mailto:awanishkumarrocky552@gmail.com">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              Email <span>↗</span>
+            </a>
           </div>
         </div>
 
@@ -90,22 +110,22 @@
           <div class="portrait-orbit"></div>
           <div class="portrait-orbit orbit-two"></div>
           <div class="portrait-frame">
-            <img src="pic.jpg" alt="Awanish Kumar" class="portrait-img">
+            <img src="pic.jpg" alt="Awanish Kumar" class="portrait-img" width="430" height="473">
             <span class="portrait-grain"></span>
             <span class="portrait-shine"></span>
             <span class="portrait-scan"></span>
           </div>
           <div class="float-badge badge-top"><span class="tiny-pulse"></span> AVAILABLE FOR WORK</div>
           <div class="float-badge badge-right"><strong>13</strong><span>LIVE SITES</span></div>
-          <div class="float-badge badge-bottom"><strong>52</strong><span>PROJECTS SHIPPED</span></div>
+          <div class="float-badge badge-bottom"><strong>106</strong><span>PROJECTS BUILT</span></div>
           <div class="portrait-label">AWANISH KUMAR <span>—</span> BUILDER &amp; AUTOMATOR</div>
         </div>
       </div>
 
       <div class="container hero-stats">
         <div class="stat reveal"><strong data-count="13">0</strong><span>Live websites</span></div>
-        <div class="stat reveal"><strong data-count="52">0</strong><span>Project entries</span></div>
-        <div class="stat reveal"><strong data-count="1">0</strong><span>Android app shipped</span></div>
+        <div class="stat reveal"><strong data-count="106">0</strong><span>Total builds</span></div>
+        <div class="stat reveal"><strong data-count="25">0</strong><span>+ Automation &amp; AI suites</span></div>
         <div class="stat reveal"><strong data-count="4">0</strong><span>+ years building</span></div>
       </div>
 
@@ -120,102 +140,55 @@
       </div>
     </div>
 
-    <!-- FEATURED / FINAL BUILDS -->
+    <!-- FEATURED WEBSITES -->
     <section class="section" id="featured">
       <div class="container">
         <header class="section-head">
-          <div class="section-kicker reveal"><span>01</span> FINAL BUILDS</div>
+          <div class="section-kicker reveal"><span>01</span> FEATURED WEBSITES</div>
           <h2 class="section-title reveal">The ones that <em>shipped.</em></h2>
           <p class="section-desc reveal">Finished, live and worth the spotlight. Real work, real links, a little extra glow.</p>
         </header>
         <div class="featured-grid" id="featuredGrid"></div>
-      </div>
-    </section>
-
-    <!-- BUSINESS WEBSITE SHOWCASE -->
-    <section class="section section-alt" id="business">
-      <div class="container">
-        <header class="section-head">
-          <div class="section-kicker reveal"><span>02</span> BUSINESS WEBSITE SHOWCASE</div>
-          <h2 class="section-title reveal">Ten sites. Ten <em>businesses.</em></h2>
-          <p class="section-desc reveal">A collection of separate live business websites — hospitality, food, fitness, beauty, healthcare and events. Hover a card, click the preview, or visit the site directly.</p>
-        </header>
-        <div class="filters reveal" id="businessFilters" role="group" aria-label="Filter business websites"></div>
-        <div class="business-grid" id="businessGrid"></div>
-        <p class="section-footnote reveal"><strong id="businessCount">10</strong> live websites, ready to explore.</p>
-      </div>
-    </section>
-
-    <!-- PREMIUM DEMOS COLLECTION -->
-    <section class="section section-alt demos-promo" id="demos">
-      <div class="orb orb-e" aria-hidden="true"></div>
-      <div class="container">
-        <header class="section-head">
-          <div class="section-kicker reveal"><span>03</span> PREMIUM DEMOS</div>
-          <h2 class="section-title reveal">50 sites. <em>One collection.</em></h2>
-          <p class="section-desc reveal">A separate showcase built in the same design language — business websites, creative studios and personal portfolios, each live and individually linked.</p>
-        </header>
-        <div class="promo-grid">
-          <a class="promo-feature reveal" href="showcase.html" aria-label="Open the 50 premium demos showcase">
-            <div class="promo-stage">
-              <iframe src="https://awanish98.github.io/premium-web-demos/51-developer-showcase/" loading="lazy" referrerpolicy="no-referrer" title="3D showcase preview" tabindex="-1"></iframe>
-              <span class="promo-live"><i></i> LIVE PREVIEW</span>
-            </div>
-            <div class="promo-feature-body">
-              <span class="promo-tag">THE FULL SHOWCASE</span>
-              <h3>Explore all 50 premium demos <span>↗</span></h3>
-              <p>Filter by category, search by name, expand any live preview — all on one dedicated page.</p>
-            </div>
-          </a>
-          <div class="promo-side reveal" data-d="1">
-            <a class="promo-link" href="https://awanish98.github.io/premium-web-demos/51-developer-showcase/" target="_blank" rel="noopener">
-              <span class="promo-link-n">01</span>
-              <span><strong>3D Showcase</strong><small>The interactive 51st build</small></span>
-              <b>↗</b>
-            </a>
-            <a class="promo-link" href="https://awanish98.github.io/premium-web-demos/" target="_blank" rel="noopener">
-              <span class="promo-link-n">02</span>
-              <span><strong>Live Hub</strong><small>Home of all 50 demos</small></span>
-              <b>↗</b>
-            </a>
-            <a class="promo-link" href="https://github.com/Awanish98/premium-web-demos" target="_blank" rel="noopener">
-              <span class="promo-link-n">03</span>
-              <span><strong>GitHub Repo</strong><small>Source &amp; structure</small></span>
-              <b>↗</b>
-            </a>
-            <a class="promo-link" href="showcase.html">
-              <span class="promo-link-n">04</span>
-              <span><strong>On-site showcase</strong><small>Same theme, dedicated page</small></span>
-              <b>↗</b>
-            </a>
-            <p class="promo-foot">Every link opens the real thing.</p>
-          </div>
+        <div class="featured-foot reveal">
+          <span>✦ &nbsp;That's just the highlight reel — everything else is one click away.</span>
+          <a href="showcase.html" class="mini-link solid">See all 106 projects ↗</a>
         </div>
       </div>
     </section>
 
-    <!-- FULL ARCHIVE -->
-    <section class="section" id="archive">
+    <!-- ALL-PROJECTS CAROUSEL -->
+    <section class="section section-alt" id="carousel">
       <div class="container">
         <header class="section-head">
-          <div class="section-kicker reveal"><span>04</span> COMPLETE INVENTORY</div>
-          <h2 class="section-title reveal">The full <em>archive.</em></h2>
-          <p class="section-desc reveal">52 entries across live apps, GitHub projects, Python automation, AI experiments and music/media builds. Every project gets its place — none are left out.</p>
+          <div class="section-kicker reveal"><span>02</span> PROJECT CAROUSEL</div>
+          <h2 class="section-title reveal">All of it. <em>On repeat.</em></h2>
+          <p class="section-desc reveal">Websites, apps, tools, scripts, AI experiments, media builds — every single project keeps rolling through here. Hover to pause, click a card to open it, or head to the showcase for the full filtered view.</p>
         </header>
-        <div class="archive-jump reveal" id="archiveJump"></div>
-        <div class="timeline" id="archiveTimeline"></div>
+      </div>
+      <div class="carousel-stage reveal" id="carouselStage" aria-label="All projects carousel">
+        <div class="carousel-track" id="carouselTrack"></div>
+      </div>
+      <div class="container carousel-foot reveal">
+        <span class="carousel-hint"><i></i> HOVER TO PAUSE · SCROLL SIDEWAYS · CLICK TO OPEN</span>
+        <a href="showcase.html" class="btn btn-primary magnetic">Open the full showcase <span>↗</span></a>
       </div>
     </section>
 
-    <!-- IN THE LAB -->
-    <section class="section section-alt" id="lab">
-      <div class="container">
-        <header class="section-head">
-          <div class="section-kicker reveal"><span>05</span> IN THE LAB</div>
-          <h2 class="section-title reveal">Currently <em>cooking.</em></h2>
-          <p class="section-desc reveal">Ideas, agents and systems in progress or on the roadmap. They're shown here honestly — not counted as finished products yet.</p>
-        </header>
-        <div class="lab-grid" id="labGrid"></div>
+    <!-- SHOWCASE BANNER -->
+    <section class="section show-banner" id="showcase-cta">
+      <div class="orb orb-e" aria-hidden="true"></div>
+      <div class="container show-banner-inner reveal">
+        <div>
+          <div class="section-kicker"><span>03</span> THE COMPLETE ARCHIVE</div>
+          <h2 class="section-title">106 projects.<br><em>One showcase.</em></h2>
+          <p class="section-desc">Websites that suit your business, apps, open source, tools &amp; scripts, AI systems, music &amp; media — 106 builds organised into 7 categories. Try the demos, filter by type, search by name, and preview everything on one dedicated page.</p>
+        </div>
+        <div class="show-banner-side">
+          <div class="show-count"><strong>106</strong><span>PROJECTS</span></div>
+          <div class="show-count"><strong>07</strong><span>CATEGORIES</span></div>
+          <div class="show-count"><strong>53</strong><span>LIVE DEMOS</span></div>
+          <a href="showcase.html" class="btn btn-primary magnetic">Browse every project <span>↗</span></a>
+        </div>
       </div>
     </section>
 
@@ -223,7 +196,7 @@
     <section class="section" id="about">
       <div class="container">
         <header class="section-head">
-          <div class="section-kicker reveal"><span>06</span> ABOUT</div>
+          <div class="section-kicker reveal"><span>04</span> ABOUT</div>
           <h2 class="section-title reveal">A bit about <em>me.</em></h2>
         </header>
         <div class="about-grid">
@@ -240,13 +213,13 @@
             </div>
             <div class="photo-mini-row">
               <div><strong>13</strong><span>Live sites</span></div>
-              <div><strong>52</strong><span>Projects</span></div>
+              <div><strong>106</strong><span>Projects</span></div>
               <div><strong>4+</strong><span>Years</span></div>
             </div>
           </div>
 
           <div class="about-copy reveal">
-            <p class="lead">Software developer with hands-on experience in Python automation, web development, application debugging and web scraping.</p>
+            <p class="lead">Software developer and automation engineer engineering full-stack web applications, resilient data extraction pipelines, and AI-powered systems.</p>
             <p>I build responsive web applications with React, JavaScript, HTML and CSS; automated data-collection systems with Selenium, BeautifulSoup, Scrapy and Pyppeteer; and AI-powered tools that actually get used. I like turning messy, manual workflows into something clean, fast and repeatable.</p>
             <p>When I'm not shipping, I'm usually improving a script, testing a new model, or finding a smarter way to do the same job in half the steps.</p>
             <div class="about-meta">
@@ -272,8 +245,9 @@
                 <p>Built and maintained automation workflows using Selenium, Scrapy, BeautifulSoup and Pyppeteer. Debugged scripts, data extraction flows and web apps. Worked on AI training and evaluation projects with Outlier.</p>
               </div>
               <div class="tl-item">
-                <span class="tl-date">LUCKNOW</span>
+                <span class="tl-date">JAN 2022 — AUG 2022</span>
                 <h4>Web Developer — Incroyable Industries Pvt Ltd</h4>
+                <p><em style="font-family:var(--mono);font-size:.62rem;color:var(--dim);letter-spacing:.08em;">Lucknow, India</em></p>
                 <p>Developed and maintained responsive websites using HTML, CSS and JavaScript. Assisted with debugging, testing, feature implementation and deployment.</p>
               </div>
             </div>
@@ -307,7 +281,7 @@
       <div class="orb orb-d" aria-hidden="true"></div>
       <div class="container contact-inner">
         <div class="contact-avatar reveal"><img src="pic.jpg" alt=""><span></span></div>
-        <div class="section-kicker reveal"><span>07</span> GET IN TOUCH</div>
+        <div class="section-kicker reveal"><span>05</span> GET IN TOUCH</div>
         <h2 class="contact-title reveal">Have a project?<br><em>Let's build it.</em></h2>
         <p class="contact-sub reveal">Open to freelance work, collaborations and interesting automation problems. Drop a mail — I'll get back to you.</p>
         <form class="contact-form reveal" id="contactForm">
@@ -318,9 +292,34 @@
           <button class="btn btn-primary" type="submit">Send message <span>↗</span></button>
         </form>
         <div class="contact-direct reveal">
-          <a href="mailto:awanishkumarrocky552@gmail.com">awanishkumarrocky552@gmail.com ↗</a>
-          <a href="tel:9415848436">+91 94158 48436 ↗</a>
-          <a href="https://github.com/Awanish98" target="_blank" rel="noopener">github.com/Awanish98 ↗</a>
+          <a class="contact-card" href="mailto:awanishkumarrocky552@gmail.com">
+            <span class="cc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </span>
+            <span class="cc-info"><span class="cc-label">Email</span><span class="cc-val">awanishkumarrocky552@gmail.com</span></span>
+            <span class="cc-arrow">↗</span>
+          </a>
+          <a class="contact-card" href="tel:+919415848436">
+            <span class="cc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </span>
+            <span class="cc-info"><span class="cc-label">Phone</span><span class="cc-val">+91 94158 48436</span></span>
+            <span class="cc-arrow">↗</span>
+          </a>
+          <a class="contact-card" href="https://github.com/Awanish98" target="_blank" rel="noopener">
+            <span class="cc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </span>
+            <span class="cc-info"><span class="cc-label">GitHub</span><span class="cc-val">github.com/Awanish98</span></span>
+            <span class="cc-arrow">↗</span>
+          </a>
+          <a class="contact-card" href="https://linkedin.com/in/awanish-kumar-1a99321b4" target="_blank" rel="noopener">
+            <span class="cc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            </span>
+            <span class="cc-info"><span class="cc-label">LinkedIn</span><span class="cc-val">in/awanish-kumar-1a99321b4</span></span>
+            <span class="cc-arrow">↗</span>
+          </a>
         </div>
       </div>
     </section>
@@ -359,6 +358,7 @@
     </div>
   </div>
 
+  <script src="projects-data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

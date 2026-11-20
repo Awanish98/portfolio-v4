@@ -1,0 +1,104 @@
+/* ============================================================
+   Index page — featured foot, all-projects carousel, showcase CTA
+   ============================================================ */
+
+/* ---------- featured foot ---------- */
+.featured-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  margin-top: 26px; padding: 18px 22px; border-radius: 14px;
+  border: 1px solid var(--line); background: var(--surface);
+  font-family: var(--mono); font-size: .72rem; letter-spacing: .04em; color: var(--muted);
+}
+.featured-foot span::first-letter { color: var(--red); }
+
+/* ---------- all-projects carousel ---------- */
+.carousel-stage {
+  position: relative; overflow: hidden; padding: 10px 0 26px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.carousel-track {
+  display: flex; width: max-content; gap: 16px;
+  animation: carouselScroll 150s linear infinite;
+  will-change: transform;
+}
+.carousel-stage:hover .carousel-track,
+.carousel-stage:focus-within .carousel-track { animation-play-state: paused; }
+@keyframes carouselScroll { to { transform: translateX(-50%); } }
+
+.car-card {
+  position: relative; flex: 0 0 268px; min-height: 196px; overflow: hidden;
+  display: flex; flex-direction: column; padding: 18px;
+  border-radius: 15px; border: 1px solid var(--line); background: var(--surface);
+  text-decoration: none; color: var(--text);
+  transform-style: preserve-3d;
+  transition: transform .35s cubic-bezier(.16, 1, .3, 1), border-color .3s, box-shadow .4s, background .35s;
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+}
+.car-card::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(300px 160px at 100% 0%, hsla(var(--h, 0), 60%, 50%, .18), transparent 70%),
+    linear-gradient(180deg, transparent 60%, rgba(8, 7, 11, .55));
+}
+.car-card:hover {
+  transform: perspective(900px) translateY(-8px) rotateX(0) rotateY(0);
+  border-color: rgba(238, 39, 56, .6);
+  background: var(--surface-2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .5), 0 0 34px rgba(238, 39, 56, .12);
+}
+.car-card-top { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.car-card-icon {
+  width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px;
+  font-size: 1rem; color: var(--red); background: rgba(238, 39, 56, .11); border: 1px solid rgba(238, 39, 56, .24);
+}
+.car-card-num { font-family: var(--mono); font-size: .58rem; letter-spacing: .14em; color: var(--dim); }
+.car-card-glyph {
+  position: relative; margin: 16px 0 8px; font-family: var(--display);
+  font-size: 1.35rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.15;
+}
+.car-card-glyph small { display: block; margin-top: 5px; font-family: var(--mono); font-size: .58rem; font-weight: 400; letter-spacing: .06em; color: var(--dim); }
+.car-card-foot { position: relative; margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.car-card-cat {
+  font-family: var(--mono); font-size: .56rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: 4px 8px; border-radius: 6px; color: var(--red);
+  background: rgba(8, 7, 11, .7); border: 1px solid var(--line);
+}
+.car-card-arrow { font-size: 1rem; color: var(--dim); transition: .25s; }
+.car-card:hover .car-card-arrow { color: var(--red); transform: translate(3px, -3px); }
+
+.carousel-foot { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-top: 12px; }
+.carousel-hint { display: inline-flex; align-items: center; gap: 9px; font-family: var(--mono); font-size: .62rem; letter-spacing: .14em; color: var(--dim); }
+.carousel-hint i { width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 10px var(--red); animation: pulse 2s infinite; }
+
+/* ---------- showcase CTA banner ---------- */
+.show-banner { position: relative; overflow: hidden; isolation: isolate; border-top: 1px solid var(--line); }
+.show-banner::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(760px 380px at 78% 60%, rgba(238, 39, 56, .16), transparent 70%),
+              radial-gradient(520px 320px at 10% 10%, rgba(126, 39, 70, .12), transparent 70%);
+}
+.show-banner-inner { display: grid; grid-template-columns: 1.3fr .7fr; gap: 54px; align-items: center; }
+.show-banner .section-desc { max-width: 620px; }
+.show-banner-side {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+.show-banner-side .btn { grid-column: 1 / -1; justify-content: center; margin-top: 6px; }
+.show-count {
+  padding: 18px 12px; text-align: center; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface);
+}
+.show-count strong { display: block; font-family: var(--display); font-size: 1.9rem; line-height: 1; letter-spacing: -.04em; color: var(--text); }
+.show-count span { display: block; margin-top: 7px; font-family: var(--mono); font-size: .55rem; letter-spacing: .14em; color: var(--red); }
+
+/* ---------- responsive ---------- */
+@media (max-width: 860px) {
+  .show-banner-inner { grid-template-columns: 1fr; gap: 30px; }
+  .show-banner-side { max-width: 460px; }
+}
+@media (max-width: 620px) {
+  .featured-foot { justify-content: center; text-align: center; }
+  .carousel-foot { justify-content: center; text-align: center; }
+  .carousel-hint { justify-content: center; }
+  .show-count strong { font-size: 1.5rem; }
+}

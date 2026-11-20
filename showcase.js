@@ -1,5 +1,5 @@
-/* ============================================================
-   Awanish Kumar / Jordan — Premium Demos showcase page
+﻿/* ============================================================
+   Awanish Kumar / Jordan - COMPLETE PROJECT SHOWCASE
    ============================================================ */
 
 'use strict';
@@ -12,118 +12,181 @@ const BASE = 'https://awanish98.github.io/premium-web-demos/';
 const LINKS = {
   hub: BASE,
   threeD: BASE + '51-developer-showcase/',
-  repo: 'https://github.com/Awanish98/premium-web-demos',
+  repo: 'https://github.com/Awanish98',
   portfolio: 'index.html'
 };
 
-/* All 50 demos — names and URLs exactly as supplied. */
-const demos = [
-  { n: 1,  name: 'Aurelia House',          sub: 'Luxury Hotel',              cat: 'Hospitality',        desc: 'Booking-first luxury stay experience with rich imagery and room details.', url: BASE + '01-hotel-resort/' },
-  { n: 2,  name: 'The Ivory Court',        sub: 'Wedding Banquet',           cat: 'Hospitality',        desc: 'Elegant banquet and celebration showcase for a premium venue.', url: BASE + '02-wedding-banquet/' },
-  { n: 3,  name: 'Ember & Thyme',           sub: 'Restaurant',                cat: 'Food & Fitness',     desc: 'Modern restaurant site with menu, dining details and reservations.', url: BASE + '03-restaurant/' },
-  { n: 4,  name: 'Sidequest Cafe',         sub: 'Cafe & Quick Service',      cat: 'Food & Fitness',     desc: 'Bold, energetic cafe landing page built for quick service.', url: BASE + '04-cafe-fast-food/' },
-  { n: 5,  name: 'Iron District',          sub: 'Strength Gym',              cat: 'Food & Fitness',     desc: 'High-energy gym website with classes and membership focus.', url: BASE + '05-gym/' },
-  { n: 6,  name: 'Maison Muse',            sub: 'Salon & Beauty',            cat: 'Food & Fitness',     desc: 'Refined salon and beauty showcase with service highlights.', url: BASE + '06-salon-beauty/' },
-  { n: 7,  name: 'Carewell Medical Centre',sub: 'Clinic Demo',               cat: 'Health',             desc: 'Clear, calm clinic information site with departments and care.', url: BASE + '07-hospital-clinic/' },
-  { n: 8,  name: 'The Garden Estate',      sub: 'Wedding Lawn',              cat: 'Hospitality',        desc: 'Lawn and venue event showcase with a soft, romantic feel.', url: BASE + '08-wedding-lawn-events/' },
-  { n: 9,  name: 'The Meridian Inn',       sub: 'Boutique Hotel',            cat: 'Hospitality',        desc: 'Boutique stay experience with rooms and atmosphere up front.', url: BASE + '09-boutique-hotel/' },
-  { n: 10, name: 'Pulse Social Club',      sub: 'Fitness Club',              cat: 'Food & Fitness',     desc: 'Premium fitness club landing page with a strong visual identity.', url: BASE + '10-fitness-club/' },
-  { n: 11, name: 'Northline Estates',      sub: 'Property Developer',        cat: 'Property & Trades',  desc: 'Property developer site showcasing projects and developments.', url: BASE + '11-real-estate-property-developer/' },
-  { n: 12, name: 'Brightpath Academy',     sub: 'Coaching & EdTech',         cat: 'Education',          desc: 'Coaching and edtech platform with courses and learning paths.', url: BASE + '12-coaching-institute-edtech/' },
-  { n: 13, name: 'Sunward Energy',         sub: 'Solar Solutions',           cat: 'Property & Trades',  desc: 'Solar solutions site focused on clean energy and installations.', url: BASE + '13-solar-energy-company/' },
-  { n: 14, name: 'Voltara Motors',         sub: 'EV Showroom & Charging',    cat: 'Property & Trades',  desc: 'EV showroom and charging network landing experience.', url: BASE + '14-ev-showroom-charging-station/' },
-  { n: 15, name: 'Paw & Care Clinic',      sub: 'Pet Care & Veterinary',     cat: 'Health',             desc: 'Friendly veterinary and pet care clinic website.', url: BASE + '15-pet-care-veterinary-services/' },
-  { n: 16, name: 'Stillframe Studio',      sub: 'Photography Studio',        cat: 'Creative',           desc: 'Photography and videography studio portfolio-style showcase.', url: BASE + '16-photography-videography-studio/' },
-  { n: 17, name: 'Atelier Stone',          sub: 'Interior Design',           cat: 'Creative',           desc: 'Interior design and architecture studio with a refined layout.', url: BASE + '17-interior-design-architecture-studio/' },
-  { n: 18, name: 'Redline Detailing',      sub: 'Car Detailing',             cat: 'Property & Trades',  desc: 'Car detailing and automobile garage service website.', url: BASE + '18-car-detailing-automobile-garage/' },
-  { n: 19, name: 'Maison Dore',            sub: 'Fashion & Jewellery',       cat: 'Creative',           desc: 'Fashion and jewellery D2C storefront with editorial styling.', url: BASE + '19-fashion-jewellery-d2c-e-commerce/' },
-  { n: 20, name: 'Wandernorth',            sub: 'Travel & Tours',            cat: 'Creative',           desc: 'Travel agency and tour operator site built for discovery.', url: BASE + '20-travel-agency-tour-operator/' },
-  { n: 21, name: 'Northgate Visa',         sub: 'Immigration Consultancy',   cat: 'Professional',       desc: 'Immigration and visa consultancy with a trustworthy layout.', url: BASE + '21-immigration-visa-consultancy/' },
-  { n: 22, name: 'Ledger & Co.',           sub: 'CA & Tax',                  cat: 'Professional',       desc: 'Chartered accountant and tax consultancy website.', url: BASE + '22-ca-tax-consultancy/' },
-  { n: 23, name: 'Harrison & Vale',        sub: 'Law Firm',                  cat: 'Professional',       desc: 'Law firm and legal consultancy with a formal, confident tone.', url: BASE + '23-law-firm-legal-consultancy/' },
-  { n: 24, name: 'Signalrise',             sub: 'Digital Marketing',         cat: 'Professional',       desc: 'Digital marketing agency showcasing growth and campaigns.', url: BASE + '24-digital-marketing-agency/' },
-  { n: 25, name: 'Codeforge Labs',         sub: 'Software Company',          cat: 'Tech',               desc: 'IT and software development company landing page.', url: BASE + '25-it-software-development-company/' },
-  { n: 26, name: 'The Common Desk',        sub: 'Coworking Space',           cat: 'Property & Trades',  desc: 'Coworking space site with memberships and community focus.', url: BASE + '26-co-working-space/' },
-  { n: 27, name: 'Ironwork Industries',    sub: 'Manufacturing',             cat: 'Property & Trades',  desc: 'Manufacturing and industrial company website.', url: BASE + '27-manufacturing-industrial-company/' },
-  { n: 28, name: 'Haven & Grain',          sub: 'Furniture & Decor',         cat: 'Creative',           desc: 'Furniture and home decor store with warm product styling.', url: BASE + '28-furniture-home-decor-store/' },
-  { n: 29, name: 'Fixright Home',          sub: 'Home Repair',               cat: 'Property & Trades',  desc: 'Home repair and maintenance service booking website.', url: BASE + '29-home-repair-maintenance/' },
-  { n: 30, name: 'Freshloop',              sub: 'Laundry & Dry Cleaning',    cat: 'Property & Trades',  desc: 'Laundry and dry cleaning service with pickup and delivery.', url: BASE + '30-laundry-dry-cleaning/' },
-  { n: 31, name: 'Strata Build',           sub: 'Construction',              cat: 'Property & Trades',  desc: 'Construction and infrastructure company showcase.', url: BASE + '31-construction-infrastructure-company/' },
-  { n: 32, name: 'Smilewell Dental',       sub: 'Dental Clinic',             cat: 'Health',             desc: 'Dental clinic site with treatments and patient comfort.', url: BASE + '32-dental-clinic/' },
-  { n: 33, name: 'Clearpath Labs',         sub: 'Diagnostics',               cat: 'Health',             desc: 'Diagnostic lab and pathology centre information site.', url: BASE + '33-diagnostic-lab-pathology-centre/' },
-  { n: 34, name: 'Moment House',           sub: 'Event Management',          cat: 'Hospitality',        desc: 'Event management company showcasing experiences and moments.', url: BASE + '34-event-management-company/' },
-  { n: 35, name: 'Relay Express',          sub: 'Courier & Logistics',       cat: 'Professional',       desc: 'Courier and logistics company with tracking-led messaging.', url: BASE + '35-courier-logistics-company/' },
-  { n: 36, name: 'Fieldroot Agri',         sub: 'Agriculture & AgriTech',    cat: 'Professional',       desc: 'Agriculture and agritech company website.', url: BASE + '36-agriculture-agritech/' },
-  { n: 37, name: 'Little Lantern',         sub: 'Preschool & Daycare',       cat: 'Education',          desc: 'Preschool and daycare site with a playful, caring feel.', url: BASE + '37-preschool-daycare/' },
-  { n: 38, name: 'Soundroom Studio',       sub: 'Recording Studio',          cat: 'Creative',           desc: 'Music recording studio showcase with gear and credits.', url: BASE + '38-music-recording-studio/' },
-  { n: 39, name: 'Sentinel Secure',        sub: 'Security Solutions',        cat: 'Tech',               desc: 'CCTV and security solutions website for homes and businesses.', url: BASE + '39-cctv-security-solutions/' },
-  { n: 40, name: 'Pureflow Water',         sub: 'Water Treatment',           cat: 'Property & Trades',  desc: 'RO, water purifier and water treatment solutions site.', url: BASE + '40-ro-water-purifier-water-treatment/' },
-  { n: 41, name: 'Alex Rivera',            sub: 'Developer Portfolio',       cat: 'Portfolios',         desc: 'Clean developer portfolio with projects and experience.', url: BASE + '41-web-developer-portfolio/' },
-  { n: 42, name: 'Maya Sen',               sub: 'UI/UX Portfolio',           cat: 'Portfolios',         desc: 'UI/UX designer portfolio with case studies and visuals.', url: BASE + '42-ui-ux-designer-portfolio/' },
-  { n: 43, name: 'Noah Reed',              sub: 'Photographer Portfolio',    cat: 'Portfolios',         desc: 'Photographer portfolio built around a strong gallery.', url: BASE + '43-photographer-portfolio/' },
-  { n: 44, name: 'Elena Voss',             sub: 'Filmmaker Portfolio',       cat: 'Portfolios',         desc: 'Video editor and filmmaker portfolio with reel-first layout.', url: BASE + '44-video-editor-filmmaker-portfolio/' },
-  { n: 45, name: 'Ria Kapoor',             sub: 'Graphic Design Portfolio',  cat: 'Portfolios',         desc: 'Graphic designer portfolio with bold typographic work.', url: BASE + '45-graphic-designer-portfolio/' },
-  { n: 46, name: 'Daniel Crane',           sub: 'Architect Portfolio',       cat: 'Portfolios',         desc: 'Architect portfolio showcasing built work and concepts.', url: BASE + '46-architect-portfolio/' },
-  { n: 47, name: 'Isla Moreno',            sub: 'Fashion Designer',          cat: 'Portfolios',         desc: 'Fashion designer portfolio with an editorial presentation.', url: BASE + '47-fashion-designer-portfolio/' },
-  { n: 48, name: 'Sam Wright',             sub: 'Writer & Copywriter',       cat: 'Portfolios',         desc: 'Content writer and copywriter portfolio with writing samples.', url: BASE + '48-content-writer-copywriter-portfolio/' },
-  { n: 49, name: 'Kai Nakamura',           sub: '3D Artist Portfolio',       cat: 'Portfolios',         desc: '3D and digital artist portfolio with a cinematic gallery.', url: BASE + '49-3d-artist-digital-artist-portfolio/' },
-  { n: 50, name: 'Zoe Lane',               sub: 'Creator Portfolio',         cat: 'Portfolios',         desc: 'Influencer and content creator portfolio with a personal brand.', url: BASE + '50-influencer-content-creator-portfolio/' }
-];
+const groups = window.PROJECT_DATA.groups;
+const allItems = window.PROJECT_DATA.allItems;
+/* ---------------- HELPERS ---------------- */
+const hue = str => {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 360;
+  return h;
+};
+const initials = name => name.replace(/[^a-zA-Z ]/g, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+const statusLabel = s => ({ live: 'Live', done: 'Complete', building: 'Building', planned: 'Planned' }[s] || s);
+const statusClass = s => `status-${s === 'done' ? 'done' : s === 'live' ? 'live' : s === 'building' ? 'building' : 'planned'}`;
+const statusPill = status => `<span class="status-pill ${statusClass(status)}"><i></i>${statusLabel(status)}</span>`;
+const tagRow = tags => `<div class="pc-tags">${(tags || []).slice(0, 4).map(t => `<span class="tag">${t}</span>`).join('')}</div>`;
 
 /* ---------------- RENDER ---------------- */
+function injectStats() {
+  const values = {
+    total: allItems.length,
+    live: allItems.filter(i => i.status === 'live').length,
+    cats: groups.length,
+    shipped: allItems.filter(i => i.status === 'live' || i.status === 'done').length
+  };
+  $$('[data-stat]').forEach(el => {
+    const target = values[el.dataset.stat];
+    if (target == null) return;
+    if (reduceMotion) { el.textContent = target; return; }
+    let start = null;
+    const step = ts => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / 1100, 1);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+}
 
-function renderDemos() {
-  $('#demoGrid').innerHTML = demos.map(d => `
-    <article class="demo-card reveal" data-cat="${d.cat}" data-name="${d.name.toLowerCase()} ${d.sub.toLowerCase()}">
-      <div class="demo-preview" data-preview="${d.url}" role="button" tabindex="0" aria-label="Preview ${d.name}">
-        <iframe src="${d.url}" loading="lazy" referrerpolicy="no-referrer" title="${d.name} preview" tabindex="-1"></iframe>
-        <span class="demo-cat">${d.cat}</span>
-        <span class="demo-zoom">CLICK TO EXPAND ↗</span>
-      </div>
-      <div class="demo-body">
-        <div class="demo-top"><span class="demo-num">${String(d.n).padStart(2, '0')} / 50</span><span class="demo-mark"></span></div>
-        <h3>${d.name}<small>${d.sub}</small></h3>
-        <p>${d.desc}</p>
-        <div class="demo-links">
-          <a class="visit-link" href="${d.url}" target="_blank" rel="noopener">Visit ↗</a>
-          <button type="button" class="demo-expand" data-preview="${d.url}">Expand preview</button>
-        </div>
-      </div>
-    </article>`).join('');
-  scalePreviews();
+function renderReel() {
+  const track = $('#reelTrack');
+  if (!track) return;
+  const chips = allItems.map(p =>
+    `<a class="reel-chip" href="${p.url || 'showcase.html'}" ${p.url ? 'target="_blank" rel="noopener"' : ''}><b>${p.groupIcon}</b>${p.name}</a>`
+  ).join('');
+  // duplicated once so the -50% marquee loops seamlessly
+  track.innerHTML = chips + chips;
+}
+
+function renderTryWeb() {
+  const host = $('#tryWebGrid');
+  if (!host) return;
+  // a hand-picked mix so different business types are visible at a glance
+  const picks = [1, 3, 7, 25, 34, 41].map(n => window.PROJECT_DATA.demos.find(d => d.n === n)).filter(Boolean);
+  host.innerHTML = `
+    <div class="try-web-label"><span>✦</span> A FEW TO START WITH <b>↘</b></div>
+    <div class="try-web-grid">
+      ${picks.map((d, i) => `
+        <a class="try-shot reveal" href="${d.url}" target="_blank" rel="noopener" data-d="${i % 3}" style="--h:${hue(d.name)}">
+          <span class="try-shot-preview">
+            <iframe src="${d.url}" loading="lazy" referrerpolicy="no-referrer" title="${d.name} preview" tabindex="-1"></iframe>
+            <span class="try-shot-open">TRY THIS ↗</span>
+          </span>
+          <span class="try-shot-body">
+            <b>${d.name}</b>
+            <small>${d.sub} · ${d.cat}</small>
+          </span>
+        </a>`).join('')}
+    </div>`;
+}
+
+function renderSpotlight() {
+  $('#spotGrid').innerHTML = groups.map((g, i) => `
+    <button type="button" class="cat-card reveal" data-goto="${g.key}" data-d="${i % 3}">
+      <span class="cat-card-top"><span class="cat-icon">${g.icon}</span><span class="cat-n">${String(i + 1).padStart(2, '0')}</span></span>
+      <strong class="cat-count">${g.items.length}</strong>
+      <span class="cat-label">${g.label}</span>
+      <span class="cat-note">${g.note}</span>
+      <span class="cat-go">Explore ${g.label} <b>↗</b></span>
+    </button>`).join('');
 }
 
 function renderFilters() {
-  const cats = ['All', ...new Set(demos.map(d => d.cat))];
-  $('#demoFilters').innerHTML = cats.map((c, i) =>
-    `<button class="filter-btn ${i === 0 ? 'active' : ''}" data-cat="${c}">${c}<span>${c === 'All' ? demos.length : demos.filter(d => d.cat === c).length}</span></button>`
+  const cats = [{ key: 'all', label: 'All', count: allItems.length }, ...groups.map(g => ({ key: g.key, label: g.short || g.label, count: g.items.length }))];
+  $('#projFilters').innerHTML = cats.map((c, i) =>
+    `<button type="button" class="filter-btn ${i === 0 ? 'active' : ''}" data-cat="${c.key}">${c.label}<span>${c.count}</span></button>`
   ).join('');
 }
 
-/* ---------------- INTERACTIONS ---------------- */
+function renderProjects() {
+  $('#projGrid').innerHTML = allItems.map((p, i) => {
+    const searchText = `${p.name} ${p.sub || ''} ${p.groupLabel} ${(p.tags || []).join(' ')}`.toLowerCase();
+    const media = p.preview
+      ? `<div class="pc-media has-preview" data-preview="${p.preview}" role="button" tabindex="0" aria-label="Preview ${p.name}">
+           <iframe src="${p.preview}" loading="lazy" referrerpolicy="no-referrer" title="${p.name} preview" tabindex="-1"></iframe>
+           <span class="pc-zoom">CLICK TO EXPAND ↗</span>
+         </div>`
+      : `<div class="pc-media is-glyph" style="--h:${hue(p.name)}" aria-hidden="true">
+           <span class="pc-glyph-ring"></span>
+           <span class="pc-initials">${p.groupIcon} ${initials(p.name)}</span>
+         </div>`;
+    return `
+    <article class="proj-card reveal" data-cat="${p.group}" data-name="${searchText.replace(/"/g, '&quot;')}" data-d="${i % 3}">
+      ${media}
+      <span class="pc-group">${p.groupLabel}</span>
+      <div class="pc-body">
+        <div class="pc-top"><span class="pc-num">${String(i + 1).padStart(3, '0')}</span>${statusPill(p.status)}</div>
+        <h3>${p.name}<small>${p.sub || ''}</small></h3>
+        <p>${p.desc}</p>
+        ${tagRow(p.tags)}
+        <div class="pc-links">
+          ${p.url ? `<a class="mini-link solid" href="${p.url}" target="_blank" rel="noopener">${p.url.includes('github') ? 'View on GitHub' : 'Visit project'} ↗</a>` : ''}
+          ${p.preview ? `<button type="button" class="mini-link" data-preview="${p.preview}">Live preview</button>` : ''}
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  scalePreviews();
+}
 
+/* ---------------- INTERACTIONS ---------------- */
 function applyFilters() {
-  const cat = ($('.filter-btn.active') || {}).dataset?.cat || 'All';
-  const q = ($('#demoSearch')?.value || '').trim().toLowerCase();
+  const cat = ($('.filter-btn.active') || {}).dataset?.cat || 'all';
+  const q = ($('#projSearch')?.value || '').trim().toLowerCase();
   let shown = 0;
-  $$('.demo-card').forEach(card => {
-    const match = (cat === 'All' || card.dataset.cat === cat) && (!q || card.dataset.name.includes(q));
+  $$('.proj-card').forEach(card => {
+    const match = (cat === 'all' || card.dataset.cat === cat) && (!q || card.dataset.name.includes(q));
+    // BOTH properties: `hidden` for semantics, `style.display` because
+    // styles.css gives .proj-card an author-level display:flex.
     card.hidden = !match;
-    if (match) { shown++; card.classList.add('in'); }
+    card.style.display = match ? '' : 'none';
+    if (match) {
+      shown++;
+      card.classList.remove('in');
+      void card.offsetWidth; // restart the pop-in animation
+      card.classList.add('in');
+    }
   });
-  $('#demoCount').textContent = shown;
-  const empty = $('#demoEmpty');
+  $('#projCount').textContent = shown;
+  const empty = $('#projEmpty');
   if (empty) empty.hidden = shown !== 0;
 }
 
 function initFilters() {
-  $('#demoFilters').addEventListener('click', e => {
+  $('#projFilters').addEventListener('click', e => {
     const btn = e.target.closest('.filter-btn');
     if (!btn) return;
     $$('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
     applyFilters();
   });
-  $('#demoSearch').addEventListener('input', applyFilters);
+  $('#projSearch').addEventListener('input', applyFilters);
+
+  const gotoCategory = e => {
+    const trigger = e.target.closest('[data-goto]');
+    if (!trigger) return;
+    const key = trigger.dataset.goto;
+    $$('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === key));
+    $('#projSearch').value = '';
+    applyFilters();
+    $('#all').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  };
+  document.addEventListener('click', gotoCategory);
+
+  $('#shuffleBtn').addEventListener('click', () => {
+    const grid = $('#projGrid');
+    const cards = $$('.proj-card', grid);
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      grid.insertBefore(cards[j], cards[i]);
+    }
+    applyFilters();
+  });
+
   applyFilters();
 }
 
@@ -147,14 +210,14 @@ function initModal() {
     if (trigger) { e.preventDefault(); open(trigger.dataset.preview); return; }
     if (e.target.closest('[data-close]')) close();
   });
-  $$('.demo-preview').forEach(p => p.addEventListener('keydown', e => {
+  $$('[data-preview][role="button"]').forEach(p => p.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(p.dataset.preview); }
   }));
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
 }
 
 function scalePreviews() {
-  $$('.demo-preview').forEach(p => {
+  $$('.pc-media.has-preview, .try-shot-preview').forEach(p => {
     const frame = $('iframe', p);
     if (frame) p.style.setProperty('--scale', (p.clientWidth / 1200).toFixed(4));
   });
@@ -167,14 +230,12 @@ function scalePreviews() {
 window.addEventListener('resize', () => { clearTimeout(window.__scaleT); window.__scaleT = setTimeout(scalePreviews, 120); });
 
 function initCommon() {
-  // loader
   const loader = $('#loader');
   const hide = () => setTimeout(() => loader.classList.add('done'), reduceMotion ? 0 : 350);
   if (document.readyState === 'complete') hide();
   else window.addEventListener('load', hide, { once: true });
   setTimeout(hide, 1400);
 
-  // reveal
   const items = $$('.reveal');
   if (reduceMotion || !('IntersectionObserver' in window)) items.forEach(el => el.classList.add('in'));
   else {
@@ -184,7 +245,6 @@ function initCommon() {
     items.forEach(el => io.observe(el));
   }
 
-  // nav
   const nav = $('#nav');
   const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 30);
   onScroll();
@@ -206,7 +266,6 @@ function initCommon() {
     ['spotlight', 'all'].forEach(id => { const el = document.getElementById(id); if (el) navIo.observe(el); });
   }
 
-  // scroll progress + back to top
   const bar = $('#progressBar'), btn = $('#toTop'), fill = $('#toTopFill');
   const C = 2 * Math.PI * 20;
   fill.style.strokeDasharray = String(C);
@@ -221,7 +280,6 @@ function initCommon() {
   update();
   btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' }));
 
-  // cursor
   if (!reduceMotion && !window.matchMedia('(pointer: coarse)').matches) {
     const dot = $('.cursor-dot'), ring = $('.cursor-ring');
     let mx = -100, my = -100, rx = -100, ry = -100, active = false;
@@ -230,7 +288,7 @@ function initCommon() {
       if (!active) { active = true; document.body.classList.add('cursor-active'); }
     });
     document.addEventListener('mouseover', e => {
-      document.body.classList.toggle('cursor-hover', !!e.target.closest('a, button, [role="button"], .demo-card, .spot'));
+      document.body.classList.toggle('cursor-hover', !!e.target.closest('a, button, [role="button"], .proj-card, .cat-card'));
     });
     document.addEventListener('mouseleave', () => document.body.classList.remove('cursor-active'));
     const loop = () => {
@@ -242,9 +300,8 @@ function initCommon() {
     requestAnimationFrame(loop);
   }
 
-  // 3D tilt on demo cards + spotlight cards
   if (!reduceMotion && !window.matchMedia('(pointer: coarse)').matches) {
-    $$('.demo-card, .spot').forEach(card => {
+    $$('.proj-card, .cat-card').forEach(card => {
       card.addEventListener('mousemove', e => {
         const r = card.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width - .5;
@@ -264,9 +321,13 @@ function initCommon() {
 }
 
 /* ---------------- BOOT ---------------- */
-
+injectStats();
+renderReel();
+renderTryWeb();
+renderSpotlight();
 renderFilters();
-renderDemos();
+renderProjects();
 initFilters();
 initModal();
 initCommon();
+

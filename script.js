@@ -74,17 +74,17 @@ const liveSites = [
 ];
 
 const githubProjects = [
-  { n: 14, name: 'Living Universe',        desc: 'An experimental build from the GitHub collection.', link: 'https://github.com/Awanish98/Living-Universe' },
-  { n: 15, name: 'PREMIER',                desc: 'A project in the GitHub collection.', link: 'https://github.com/Awanish98/Premier' },
-  { n: 16, name: 'Birth of a Black Hole',  desc: 'A creative simulation-style experiment.', link: 'https://github.com/Awanish98/birth-of-a-black-hole' },
-  { n: 17, name: 'Ishq Radio',             desc: 'Radio streaming project — also featured in music & media.', link: 'https://github.com/Awanish98/Ishq-Radio' },
-  { n: 18, name: 'Web Scraping',           desc: 'Scraping experiments and reusable collectors.', link: 'https://github.com/Awanish98/Web_Scraping' },
-  { n: 19, name: 'Spotify',                desc: 'Spotify-related tooling and experiments.', link: 'https://github.com/Awanish98/Spotify' },
-  { n: 20, name: 'Python Projects',        desc: 'A collection of Python scripts and experiments.', link: 'https://github.com/Awanish98/Python_projects' },
-  { n: 21, name: 'Portfolio',              desc: 'An earlier iteration of the personal portfolio.', link: 'https://github.com/Awanish98/Portfolio' },
-  { n: 22, name: 'Portfolio Spline React', desc: 'React portfolio build with 3D / Spline visuals.', link: 'https://github.com/Awanish98/Portfolio-spline-React' },
-  { n: 23, name: 'College Test',           desc: 'College-era project and practice work.', link: 'https://github.com/Awanish98/college_test' },
-  { n: 24, name: 'Vision — AI Learning & Knowledge Platform', desc: 'AI learning and knowledge platform.', tags: ['AI', 'GitHub'] }
+  { n: 14, name: 'Living Universe',        desc: 'Interactive generative art experiment — a living, breathing cosmos rendered in the browser with canvas animations and particle physics.', tags: ['Canvas', 'JavaScript', 'Creative'], link: 'https://github.com/Awanish98/Living-Universe' },
+  { n: 15, name: 'PREMIER',                desc: 'A premium front-end build showcasing advanced layout techniques, smooth scroll interactions, and high-fidelity UI components.', tags: ['HTML', 'CSS', 'JavaScript'], link: 'https://github.com/Awanish98/Premier' },
+  { n: 16, name: 'Birth of a Black Hole',  desc: 'Cinematic WebGL-inspired simulation of a black hole forming — dark, dramatic, and physics-inspired visual storytelling.', tags: ['WebGL', 'Canvas', 'Simulation'], link: 'https://github.com/Awanish98/birth-of-a-black-hole' },
+  { n: 17, name: 'Ishq Radio',             desc: 'A live Bollywood and Hindi radio streaming app with curated stations, smooth player controls, and a sleek dark interface.', tags: ['Streaming', 'Radio', 'JavaScript'], link: 'https://github.com/Awanish98/Ishq-Radio' },
+  { n: 18, name: 'Web Scraping Suite',     desc: 'Modular Python scrapers built with BeautifulSoup, Scrapy, and Pyppeteer — covering e-commerce, news, and catalogue data extraction.', tags: ['Python', 'Scrapy', 'BeautifulSoup'], link: 'https://github.com/Awanish98/Web_Scraping' },
+  { n: 19, name: 'Spotify Tooling',        desc: 'Automation scripts for Spotify — playlist exports, track metadata extraction, and playback control experiments using the Spotify API.', tags: ['Python', 'Spotify API', 'Automation'], link: 'https://github.com/Awanish98/Spotify' },
+  { n: 20, name: 'Python Projects',        desc: 'A curated collection of Python utilities — web scrapers, data reporters, automation bots, and AI tool experiments.', tags: ['Python', 'Automation', 'Scripts'], link: 'https://github.com/Awanish98/Python_projects' },
+  { n: 21, name: 'Portfolio v1',           desc: 'First iteration of the personal portfolio — clean layout, project showcase, and responsive design built with HTML, CSS and JS.', tags: ['Portfolio', 'HTML', 'CSS'], link: 'https://github.com/Awanish98/Portfolio' },
+  { n: 22, name: 'Portfolio Spline React', desc: 'Experimental React portfolio with immersive 3D Spline scenes as hero backgrounds — merging WebGL visuals with a developer portfolio.', tags: ['React', 'Spline', '3D'], link: 'https://github.com/Awanish98/Portfolio-spline-React' },
+  { n: 23, name: 'College Projects',       desc: 'Academic projects from B.Tech at Rajkiya Engineering College — covering data structures, databases, and software engineering assignments.', tags: ['Academic', 'Python', 'SQL'], link: 'https://github.com/Awanish98/college_test' },
+  { n: 24, name: 'Vision — AI Knowledge Platform', desc: 'An AI-powered learning and knowledge management platform with structured content, smart search, and LLM-assisted study flows.', tags: ['AI', 'LLM', 'Python'] }
 ];
 
 const pythonProjects = [
@@ -178,7 +178,7 @@ function renderFeatured() {
   $('#featuredGrid').innerHTML = featured.map((p, i) => `
     <article class="fcard reveal" data-d="${i % 3}" data-url="${p.preview || p.url}">
       <div class="fcard-preview" data-preview="${p.preview || p.url}">
-        <iframe src="${p.preview || p.url}" loading="lazy" referrerpolicy="no-referrer" title="${p.name} live preview" tabindex="-1"></iframe>
+        <iframe data-src="${p.preview || p.url}" loading="lazy" referrerpolicy="no-referrer" title="${p.name} live preview" tabindex="-1"></iframe>
         <span class="preview-tag"><i></i> LIVE PREVIEW</span>
         <span class="expand-hint">Click to expand ↗</span>
       </div>
@@ -204,6 +204,7 @@ function renderFeatured() {
 }
 
 function renderBusiness() {
+  if (!$('#businessGrid')) return; // section lives on the showcase page now
   const cats = ['All', ...new Set(business.map(b => b.cat))];
   $('#businessFilters').innerHTML = cats.map((c, i) =>
     `<button class="filter-btn ${i === 0 ? 'active' : ''}" data-cat="${c}">${c}<span>${c === 'All' ? business.length : business.filter(b => b.cat === c).length}</span></button>`
@@ -212,7 +213,7 @@ function renderBusiness() {
   $('#businessGrid').innerHTML = business.map((b, i) => `
     <article class="bcard reveal" data-d="${i % 3}" data-cat="${b.cat}" data-url="${b.url}">
       <div class="bcard-preview" data-preview="${b.url}" role="button" tabindex="0" aria-label="Preview ${b.name}">
-        <iframe src="${b.url}" loading="lazy" referrerpolicy="no-referrer" title="${b.name} live preview" tabindex="-1"></iframe>
+        <iframe data-src="${b.url}" loading="lazy" referrerpolicy="no-referrer" title="${b.name} live preview" tabindex="-1"></iframe>
         <span class="bcard-cat">${b.cat}</span>
         <span class="bcard-zoom">CLICK TO EXPAND ↗</span>
       </div>
@@ -238,6 +239,7 @@ function renderBusiness() {
 }
 
 function renderArchive() {
+  if (!$('#archiveTimeline')) return; // section lives on the showcase page now
   $('#archiveJump').innerHTML = archiveGroups.map(g =>
     `<a href="#group-${g.letter}"><b>${g.letter}</b>${g.title.split(' & ')[0]}</a>`
   ).join('');
@@ -267,6 +269,7 @@ function renderArchive() {
 }
 
 function renderLab() {
+  if (!$('#labGrid')) return; // section lives on the showcase page now
   $('#labGrid').innerHTML = labProjects.map((p, i) => `
     <article class="lab-card ${p.status === 'building' ? 'building' : ''} reveal" data-d="${i % 3}">
       <div class="lab-top"><span class="proj-num">${String(i + 1).padStart(2, '0')}</span>${statusPill(p.status)}</div>
@@ -278,6 +281,44 @@ function renderSkills() {
   $('#skillGroups').innerHTML = skills.map(s => `
     <div class="skill-group"><h4>${s.title}</h4><div class="skill-tags">${s.items.map(i => `<span>${i}</span>`).join('')}</div></div>
   `).join('');
+}
+
+function renderCarousel() {
+  const track = $('#carouselTrack');
+  const data = window.PROJECT_DATA;
+  if (!track || !data) return;
+  const items = data.allItems.map((p, i) => {
+    const text = `${p.name} ${p.sub || ''} ${p.groupLabel} ${(p.tags || []).join(' ')}`.toLowerCase();
+    return `
+      <a class="car-card" href="${p.url || 'showcase.html'}" ${p.url ? 'target="_blank" rel="noopener"' : ''}
+         data-name="${text.replace(/"/g, '&quot;')}" style="--h:${hue(p.name)}" aria-label="${p.name}">
+        <span class="car-card-top">
+          <span class="car-card-icon">${p.groupIcon}</span>
+          <span class="car-card-num">${String(i + 1).padStart(3, '0')} / ${data.allItems.length}</span>
+        </span>
+        <span class="car-card-glyph">${p.name}<small>${p.sub || ''}</small></span>
+        <span class="car-card-foot">
+          <span class="car-card-cat">${p.groupLabel}</span>
+          <span class="car-card-arrow">↗</span>
+        </span>
+      </a>`;
+  }).join('');
+  // duplicate once so the -50% CSS marquee loops without a visible jump
+  track.innerHTML = items + items;
+
+  $$('.car-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - .5;
+      const y = (e.clientY - r.top) / r.height - .5;
+      card.style.setProperty('--rx', `${(-y * 8).toFixed(2)}deg`);
+      card.style.setProperty('--ry', `${(x * 8).toFixed(2)}deg`);
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.setProperty('--rx', '0deg');
+      card.style.setProperty('--ry', '0deg');
+    });
+  });
 }
 
 /* ---------------- INTERACTIONS ---------------- */
@@ -351,10 +392,18 @@ function initNav() {
         $$('.nav-link').forEach(a => a.classList.toggle('active', a.getAttribute('href') === `#${e.target.id}`));
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
-    ['featured', 'business', 'archive', 'lab', 'about'].forEach(id => {
+    ['featured', 'carousel', 'showcase-cta', 'about'].forEach(id => {
       const el = document.getElementById(id); if (el) navIo.observe(el);
     });
   }
+
+  document.addEventListener('click', e => {
+    if (links.classList.contains('open') && !nav.contains(e.target)) {
+      links.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
 }
 
 function initProgress() {
@@ -424,8 +473,7 @@ function initStars() {
   else draw();
 }
 
-function scalePreviews() {
-  $$('.bcard-preview').forEach(p => {
+function scalePreviews() {  $$('.bcard-preview').forEach(p => {
     const frame = $('iframe', p);
     if (frame) p.style.setProperty('--scale', (p.clientWidth / 1200).toFixed(4));
   });
@@ -436,6 +484,23 @@ function scalePreviews() {
   }
 }
 window.addEventListener('resize', () => { clearTimeout(window.__scaleT); window.__scaleT = setTimeout(scalePreviews, 120); });
+
+function initLazyIframes() {
+  if (!('IntersectionObserver' in window)) {
+    $$('iframe[data-src]').forEach(f => { f.src = f.dataset.src; });
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const f = e.target;
+        if (f.dataset.src) { f.src = f.dataset.src; delete f.dataset.src; }
+        io.unobserve(f);
+      }
+    });
+  }, { rootMargin: '300px' });
+  $$('iframe[data-src]').forEach(f => io.observe(f));
+}
 
 function initModal() {
   const modal = $('#previewModal'), frame = $('#modalFrame'), urlEl = $('#modalUrl'), openEl = $('#modalOpen');
@@ -464,20 +529,39 @@ function initModal() {
 }
 
 function initContact() {
-  $('#contactForm').addEventListener('submit', e => {
+  const form = $('#contactForm');
+  const btn = form ? form.querySelector('button[type="submit"]') : null;
+  if (!form) return;
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const name = $('#cfName').value.trim();
     const email = $('#cfEmail').value.trim();
     const subject = $('#cfSubject').value.trim() || `Portfolio enquiry from ${name}`;
     const message = $('#cfMessage').value.trim();
-    const body = `${message}\n\n— ${name}\n${email}`;
-    window.location.href = `mailto:awanishkumarrocky552@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+    try {
+      const res = await fetch('https://formspree.io/f/xdkozaqv', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, _subject: subject, message })
+      });
+      if (res.ok) {
+        form.innerHTML = '<p style="text-align:center;color:#4ade80;font-family:var(--mono);font-size:.88rem;padding:24px 0;letter-spacing:.05em;">✓ MESSAGE SENT — I\'ll get back to you soon.</p>';
+      } else {
+        throw new Error('Form error');
+      }
+    } catch {
+      if (btn) { btn.disabled = false; btn.textContent = 'Send message ↗'; }
+      const mailto = `mailto:awanishkumarrocky552@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message + '\n\n— ' + name + '\n' + email)}`;
+      window.location.href = mailto;
+    }
   });
 }
 
 /* ---------------- BOOT ---------------- */
 
 renderFeatured();
+renderCarousel();
 renderBusiness();
 renderArchive();
 renderLab();
@@ -491,6 +575,7 @@ initProgress();
 initCursor();
 initStars();
 initModal();
+initLazyIframes();
 initContact();
 
 $('#year').textContent = new Date().getFullYear();
@@ -585,6 +670,18 @@ function initToTop() {
   update();
   btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' }));
 }
+
+window.filterArchive = function(query) {
+  const q = query.toLowerCase().trim();
+  $$('.proj-card').forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = q && !text.includes(q) ? 'none' : '';
+  });
+  $$('.tl-group').forEach(group => {
+    const visible = $$('.proj-card', group).some(c => c.style.display !== 'none');
+    group.style.display = visible || !q ? '' : 'none';
+  });
+};
 
 initPortrait();
 initMagnetic();

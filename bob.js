@@ -47,6 +47,7 @@
           </span>
         </div>
         <div class="bob-head-actions">
+          <button class="bob-icon-btn" id="bobSfxToggle" type="button" title="Reaction sounds on" aria-label="Reaction sounds on" aria-pressed="true">🎵</button>
           <button class="bob-icon-btn" id="bobVoiceToggle" type="button" title="Mute voice replies" aria-label="Mute voice replies">🔊</button>
           <button class="bob-icon-btn" id="bobClose" type="button" title="Close chat" aria-label="Close chat">✕</button>
         </div>
@@ -74,6 +75,25 @@
   const fab = $('bobFab'), panel = $('bobPanel'), tip = $('bobTip');
   const messages = $('bobMessages'), form = $('bobForm'), input = $('bobInput');
   const mic = $('bobMic'), voiceToggle = $('bobVoiceToggle'), closeBtn = $('bobClose');
+  const sfxToggle = $('bobSfxToggle');
+
+  /* tiny Web Audio reactions, shared with the nav widget's sound engine */
+  const AUDIO = window.CW_AUDIO || null;
+  function sfx(name) { if (AUDIO && AUDIO.sfx) AUDIO.sfx(name); }
+  function syncSfxUI() {
+    const on = !AUDIO || AUDIO.sfxEnabled();
+    sfxToggle.textContent = on ? '🎵' : '🔇';
+    const label = on ? 'Reaction sounds on' : 'Reaction sounds off';
+    sfxToggle.title = label;
+    sfxToggle.setAttribute('aria-label', label);
+    sfxToggle.setAttribute('aria-pressed', String(on));
+  }
+  syncSfxUI();
+  sfxToggle.addEventListener('click', () => {
+    if (AUDIO) AUDIO.setSfx(!AUDIO.sfxEnabled());
+    syncSfxUI();
+    if (!AUDIO || AUDIO.sfxEnabled()) sfx('pop');
+  });
 
   let open = false;
   let greeted = false;
@@ -189,8 +209,11 @@
   const reactTimers = {};
   let nudgeTimer = null;
 
-  /* short-lived expression on the mascot */
+  /* short-lived expression + matching blip on the mascot */
   function react(mood, ms = 1000) {
+    if (mood === 'excited') sfx('chime');
+    else if (mood === 'curious') sfx('peep');
+    else if (mood === 'pop') sfx('pop');
     fab.classList.remove('is-bored', 'is-excited', 'is-curious', 'is-pop');
     void fab.offsetWidth; /* restart CSS animation */
     fab.classList.add('is-' + mood);
@@ -399,9 +422,9 @@
     nudge(known ? `That goes to ${known.title || href} ↗` : `Opening ${label} ↗`, null, 2600);
   }, { passive: true });
 
-  /* typing — curious face */
+  /* typing — one curious peep when he notices the first character */
   input.addEventListener('input', () => {
-    if (input.value) react('curious', 800);
+    if (input.value.length === 1) react('curious', 800);
   });
 
   /* idle while chat is open — a gentle proactive prompt (once) */
@@ -517,6 +540,7 @@
   }
 
   function setListening(state) {
+    if (state !== listening) sfx(state ? 'think' : 'tap');
     listening = state;
     mic.classList.toggle('is-listening', state);
     mic.title = state ? 'Listening… click to stop' : 'Speak your message';
@@ -570,6 +594,7 @@
     if (!message || busy) return;
     busy = true;
     setState('thinking');
+    sfx('think');
     input.value = '';
     addMessage('user', message);
     history.push({ role: 'user', text: message });
@@ -583,6 +608,7 @@
     }
 
     typing.remove();
+    sfx('chime');
     addMessage('bot', reply);
     history.push({ role: 'bot', text: reply });
     if (history.length > 20) history.splice(0, history.length - 20);
@@ -601,12 +627,14 @@
       applyDrift(0, 0); /* come back to the corner while chatting */
       setState('idle');
       wave();
+      sfx('hello');
       if (!greeted) {
         greeted = true;
         addMessage('bot', 'Hey, I’m Bob! 👋 Ask me about projects, business website demos, the CV or how to get in touch.');
       }
       setTimeout(() => input.focus({ preventScroll: true }), 260);
     } else {
+      sfx('tap');
       if (listening && recognition) recognition.stop();
       setListening(false);
       if (synth) synth.cancel();
@@ -622,6 +650,7 @@
   form.addEventListener('submit', e => { e.preventDefault(); send(input.value); });
   mic.addEventListener('click', startListening);
   voiceToggle.addEventListener('click', () => {
+    sfx('tap');
     voiceOn = !voiceOn;
     voiceToggle.textContent = voiceOn ? '🔊' : '🔇';
     voiceToggle.title = voiceOn ? 'Mute voice replies' : 'Unmute voice replies';

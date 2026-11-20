@@ -184,15 +184,22 @@
      2. AMBIENT MUSIC — soft generative pad, play/mute toggle
      --------------------------------------------------------- */
   const WANT_KEY = 'cwAmbientOn';
+  const SFX_KEY = 'bobSfxOn';
   const CHORDS = [
-    [174.61, 261.63, 329.63, 440.00], // Fmaj7
-    [196.00, 246.94, 293.66, 392.00], // G
-    [220.00, 261.63, 329.63, 392.00], // Am7
-    [164.81, 261.63, 329.63, 392.00]  // Cmaj7
+    [174.61, 261.63, 329.63, 440.00, 523.25], // Fmaj9
+    [196.00, 246.94, 293.66, 392.00, 493.88], // Gadd9
+    [220.00, 261.63, 329.63, 392.00, 523.25], // Am9
+    [164.81, 261.63, 329.63, 392.00, 493.88]  // Cmaj9
   ];
 
-  let ctx = null, master = null, tone = null;
+  let ctx = null, master = null, tone = null, delayNode = null;
   let chordTimer = null, fadeTimer = null, voices = [], chordIndex = 0, playing = false;
+
+  /* Bob's reaction blips share this AudioContext but have their own bus,
+     so they stay crisp even when the ambient pad is muted. */
+  let sfxOn = true, sfxGain = null;
+  const lastSfx = Object.create(null);
+  try { sfxOn = localStorage.getItem(SFX_KEY) !== '0'; } catch (e) { /* ignore */ }
 
   function setUI(on) {
     sound.classList.toggle('is-playing', on);
@@ -219,6 +226,7 @@
       tone.connect(master);
 
       const delay = ctx.createDelay(1), wet = ctx.createGain(), fb = ctx.createGain();
+      delayNode = delay;
       delay.delayTime.value = .42; wet.gain.value = .24; fb.gain.value = .27;
       tone.connect(delay); delay.connect(wet); wet.connect(master);
       delay.connect(fb); fb.connect(delay);
@@ -251,27 +259,45 @@
 
   function playChord() {
     if (!ctx || !playing) return;
-    const now = ctx.currentTime, dur = 8.5;
+    const now = ctx.currentTime, dur = 9.2;
     const chord = CHORDS[chordIndex++ % CHORDS.length];
     const nodes = [];
     chord.forEach((freq, i) => {
+      const upper = i === chord.length - 1;
       const osc = ctx.createOscillator();
-      osc.type = i % 2 ? 'sine' : 'triangle';
+      osc.type = upper || i % 2 ? 'sine' : 'triangle';
       osc.frequency.value = freq;
       osc.detune.value = (Math.random() * 2 - 1) * 5;
       const g = ctx.createGain();
+      const peak = upper ? .042 : .082;
       g.gain.setValueAtTime(0, now);
-      g.gain.linearRampToValueAtTime(.085, now + 2.6);
-      g.gain.setValueAtTime(.085, now + dur - 2.2);
+      g.gain.linearRampToValueAtTime(peak, now + 3);
+      g.gain.setValueAtTime(peak, now + dur - 2.6);
       g.gain.linearRampToValueAtTime(0, now + dur);
       const lfo = ctx.createOscillator(), amt = ctx.createGain();
-      lfo.frequency.value = .07 + i * .017; amt.gain.value = .028;
+      lfo.frequency.value = .06 + i * .013; amt.gain.value = upper ? .012 : .026;
       lfo.connect(amt); amt.connect(g.gain);
       lfo.start(now); lfo.stop(now + dur + .1);
       osc.connect(g); g.connect(tone);
       osc.start(now); osc.stop(now + dur + .1);
       nodes.push(osc, lfo);
     });
+
+    /* sparse bell arpeggio drifting over the pad */
+    [.9, 3.2, 5.5].forEach((offset, k) => {
+      const t = now + offset;
+      const bell = ctx.createOscillator(), bg = ctx.createGain();
+      bell.type = 'sine';
+      bell.frequency.value = chord[(k + 1) % chord.length] * 2;
+      bg.gain.setValueAtTime(0, t);
+      bg.gain.linearRampToValueAtTime(.03, t + .025);
+      bg.gain.exponentialRampToValueAtTime(.0001, t + 2.2);
+      bell.connect(bg); bg.connect(master);
+      if (delayNode) bg.connect(delayNode);
+      bell.start(t); bell.stop(t + 2.3);
+      nodes.push(bell);
+    });
+
     voices.push({ nodes: nodes, until: now + dur });
     voices = voices.filter(v => {
       if (v.until < now - .5) {
@@ -280,7 +306,7 @@
       }
       return true;
     });
-    chordTimer = setTimeout(playChord, (dur - 2) * 1000);
+    chordTimer = setTimeout(playChord, (dur - 2.5) * 1000);
   }
 
   function start() {
@@ -307,13 +333,64 @@
       master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
       master.gain.linearRampToValueAtTime(0, ctx.currentTime + .5);
       fadeTimer = setTimeout(() => {
-        if (!playing && ctx && ctx.state === 'running') ctx.suspend().catch(() => {});
+        if (!playing && !sfxOn && ctx && ctx.state === 'running') ctx.suspend().catch(() => {});
       }, 750);
     }
     setUI(false);
   }
 
   sound.addEventListener('click', () => { playing ? stop() : start(); });
+
+  /* ---------- BOB REACTION SOUNDS — tiny generated blips, no files ---------- */
+  function sfxBus() {
+    if (!ensureAudio()) return null;
+    if (!sfxGain) {
+      sfxGain = ctx.createGain();
+      sfxGain.gain.value = .5; /* own volume, independent of the pad */
+      sfxGain.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    return sfxGain;
+  }
+
+  const SFX = {
+    pop:   { f: 620, to: 940,  dur: .11, wave: 'sine',     vol: .15, gap: 180 },
+    peep:  { f: 880, to: 1180, dur: .09, wave: 'triangle', vol: .09, gap: 850 },
+    chime: { f: 700, to: 1050, dur: .32, wave: 'sine',     vol: .12, gap: 1200 },
+    tap:   { f: 440, to: 300,  dur: .08, wave: 'triangle', vol: .10, gap: 140 },
+    think: { f: 330, to: 520,  dur: .24, wave: 'sine',     vol: .10, gap: 900 },
+    hello: { f: 520, to: 790,  dur: .26, wave: 'sine',     vol: .13, gap: 1200 }
+  };
+
+  function playSfx(name) {
+    if (!sfxOn) return;
+    const now = Date.now(), p = SFX[name] || SFX.pop;
+    if (now - (lastSfx[name] || 0) < p.gap) return; /* never spam */
+    const bus = sfxBus(); if (!bus) return;
+    lastSfx[name] = now;
+    const t = ctx.currentTime + .005;
+    const osc = ctx.createOscillator(), g = ctx.createGain();
+    osc.type = p.wave;
+    osc.frequency.setValueAtTime(p.f, t);
+    osc.frequency.exponentialRampToValueAtTime(p.to, t + p.dur);
+    g.gain.setValueAtTime(.0001, t);
+    g.gain.linearRampToValueAtTime(p.vol, t + .012);
+    g.gain.exponentialRampToValueAtTime(.0001, t + p.dur);
+    osc.connect(g); g.connect(bus);
+    osc.start(t); osc.stop(t + p.dur + .03);
+  }
+
+  /* shared with bob.js — Bob's sounds stay mutable from his own panel */
+  window.CW_AUDIO = {
+    sfx: playSfx,
+    sfxEnabled: () => sfxOn,
+    ambientEnabled: () => playing,
+    setSfx(on) {
+      sfxOn = !!on;
+      try { localStorage.setItem(SFX_KEY, sfxOn ? '1' : '0'); } catch (e) { /* ignore */ }
+      if (!sfxOn && !playing && ctx && ctx.state === 'running') ctx.suspend().catch(() => {});
+    }
+  };
 
   /* resume across pages on first gesture if the user left it on */
   try {

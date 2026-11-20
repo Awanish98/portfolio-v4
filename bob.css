@@ -18,9 +18,9 @@
 .bob-root *, .bob-root *::before, .bob-root *::after { box-sizing: border-box; }
 .bob-root button, .bob-root input { font: inherit; }
 
-/* ---------- floating button ---------- */
+/* ---------- floating robot ---------- */
 .bob-tooltip {
-  position: fixed; right: 96px; bottom: 38px; pointer-events: none;
+  position: fixed; right: 116px; bottom: 50px; pointer-events: none;
   padding: 8px 13px; border-radius: 999px; white-space: nowrap;
   background: var(--bob-bg); border: 1px solid var(--bob-line);
   color: var(--bob-text); font-size: .72rem; letter-spacing: .02em;
@@ -35,34 +35,173 @@
 .bob-tooltip.is-hidden { opacity: 0; transform: translateX(8px); }
 
 .bob-fab {
-  position: fixed; right: 24px; bottom: 24px; pointer-events: auto;
-  width: 62px; height: 62px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .22);
-  background: linear-gradient(145deg, #ff5263 0%, var(--bob-red) 52%, #b3092b 100%);
-  color: #fff; font-family: 'Space Grotesk', system-ui, sans-serif; font-size: 1.6rem; font-weight: 700;
-  display: grid; place-items: center; cursor: pointer;
-  box-shadow: 0 12px 34px rgba(0, 0, 0, .5), 0 0 28px rgba(238, 39, 55, .38);
-  transition: transform .35s cubic-bezier(.16, 1, .3, 1), box-shadow .35s;
+  --eye-x: 0px; --eye-y: 0px; --tilt: 0deg;
+  position: fixed; right: 18px; bottom: 14px; pointer-events: auto;
+  width: 86px; height: 98px; padding: 0; border: 0; background: transparent;
+  cursor: pointer; filter: drop-shadow(0 14px 22px rgba(0, 0, 0, .55));
+  transition: transform .35s cubic-bezier(.16, 1, .3, 1);
 }
-.bob-fab:hover { transform: translateY(-4px) scale(1.06); box-shadow: 0 18px 44px rgba(0, 0, 0, .6), 0 0 40px rgba(238, 39, 55, .55); }
-.bob-fab-face { position: relative; z-index: 2; line-height: 1; }
+.bob-fab:hover { transform: translateY(-4px) scale(1.04); }
 .bob-fab-ring {
-  position: absolute; inset: -7px; border-radius: 50%;
-  border: 1px solid rgba(238, 39, 55, .5); animation: bobRing 2.6s ease-out infinite;
+  position: absolute; left: 50%; bottom: 8px; width: 66px; height: 16px; margin-left: -33px;
+  border-radius: 50%; border: 1px solid rgba(238, 39, 55, .5);
+  animation: bobRing 2.6s ease-out infinite;
 }
-.bob-fab-dot {
-  position: absolute; right: 4px; bottom: 6px; z-index: 3;
-  width: 10px; height: 10px; border-radius: 50%; background: #5dffa4;
-  border: 2px solid #1a1119; box-shadow: 0 0 10px rgba(93, 255, 164, .8);
+.bob-bot { position: absolute; inset: 0; animation: bobFloat 3.4s ease-in-out infinite; }
+
+/* antenna */
+.bob-antenna {
+  position: absolute; top: 2px; left: 50%; width: 2px; height: 12px; margin-left: -1px;
+  background: linear-gradient(#ff7b88, #8a0d22); border-radius: 2px;
 }
-@keyframes bobRing {
-  0% { transform: scale(.85); opacity: .9; }
-  100% { transform: scale(1.35); opacity: 0; }
+.bob-antenna i {
+  position: absolute; top: -4px; left: 50%; width: 8px; height: 8px; margin-left: -4px;
+  border-radius: 50%; background: #ff8a97;
+  box-shadow: 0 0 12px 3px rgba(255, 90, 110, .75);
+  animation: bobAntenna 1.8s ease-in-out infinite;
 }
+
+/* head + face */
+.bob-head {
+  position: absolute; top: 13px; left: 50%; width: 54px; height: 46px; margin-left: -27px;
+  border-radius: 16px 16px 14px 14px;
+  background: linear-gradient(150deg, #3a3344, #1a1622 70%);
+  border: 1px solid rgba(255, 255, 255, .18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 -6px 12px rgba(0, 0, 0, .45), 0 6px 14px rgba(0, 0, 0, .45);
+  transform: rotate(var(--tilt)); transition: transform .22s;
+}
+.bob-head::before {
+  content: ''; position: absolute; top: -3px; left: 12px; right: 12px; height: 4px;
+  border-radius: 4px; background: rgba(255, 255, 255, .08);
+}
+.bob-face {
+  position: absolute; inset: 5px 5px 4px; border-radius: 11px; overflow: hidden;
+  background: radial-gradient(60px 40px at 50% 30%, #252031, #0d0b13 75%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+}
+.bob-eye {
+  position: absolute; top: 11px; width: 14px; height: 14px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 10%, #ff9faa 18%, var(--bob-red) 60%, #7d0a22 100%);
+  box-shadow: 0 0 12px 2px rgba(238, 39, 55, .5);
+  transition: height .16s, width .16s, top .16s, border-radius .16s, box-shadow .25s;
+}
+.bob-eye--l { left: 9px; }
+.bob-eye--r { right: 9px; }
+.bob-eye i {
+  position: absolute; top: 3px; left: 4px; width: 4px; height: 4px; border-radius: 50%;
+  background: #fff; opacity: .9;
+  transform: translate(var(--eye-x), var(--eye-y)); transition: transform .12s;
+}
+.bob-brow {
+  position: absolute; top: 5px; width: 12px; height: 2px; border-radius: 2px;
+  background: rgba(255, 255, 255, .22); transition: transform .25s;
+}
+.bob-brow--l { left: 10px; }
+.bob-brow--r { right: 10px; }
+.bob-cheek {
+  position: absolute; top: 24px; width: 6px; height: 3px; border-radius: 50%;
+  background: rgba(255, 90, 110, .35); filter: blur(1px);
+}
+.bob-cheek--l { left: 5px; }
+.bob-cheek--r { right: 5px; }
+.bob-mouth {
+  position: absolute; bottom: 5px; left: 50%; width: 20px; height: 8px; margin-left: -10px;
+  display: flex; align-items: flex-end; justify-content: center; gap: 2px;
+}
+.bob-mouth::after {
+  content: ''; position: absolute; bottom: 0; left: 1px; width: 18px; height: 8px;
+  border-bottom: 2px solid #ff8a97; border-radius: 0 0 10px 10px; transition: .25s;
+}
+.bob-mouth i { width: 2px; height: 0; border-radius: 2px; background: #ff8a97; opacity: 0; }
+
+/* body + arms */
+.bob-body {
+  position: absolute; bottom: 14px; left: 50%; width: 38px; height: 28px; margin-left: -19px;
+  border-radius: 10px 10px 14px 14px;
+  background: linear-gradient(160deg, #363040, #15121d);
+  border: 1px solid rgba(255, 255, 255, .15);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 8px 16px rgba(0, 0, 0, .5);
+}
+.bob-body::before {
+  content: ''; position: absolute; top: -5px; left: 10px; right: 10px; height: 5px;
+  border-radius: 3px; background: #262031; border: 1px solid rgba(255, 255, 255, .1);
+}
+.bob-core {
+  position: absolute; top: 8px; left: 50%; width: 14px; height: 14px; margin-left: -7px;
+  border-radius: 50%; background: #0c0a12; border: 1px solid rgba(255, 255, 255, .14);
+  display: grid; place-items: center;
+}
+.bob-core i {
+  width: 6px; height: 6px; border-radius: 50%; background: #5dffa4;
+  box-shadow: 0 0 10px #5dffa4; animation: bobCorePulse 2s ease-in-out infinite;
+}
+.bob-arm {
+  position: absolute; top: 6px; width: 7px; height: 22px; border-radius: 5px;
+  background: linear-gradient(#3b3446, #1a1623); border: 1px solid rgba(255, 255, 255, .1);
+  transform-origin: top center; transition: transform .3s;
+}
+.bob-arm--l { left: -8px; transform: rotate(10deg); }
+.bob-arm--r { right: -8px; transform: rotate(-10deg); }
+.bob-shadow {
+  position: absolute; bottom: 8px; left: 50%; width: 54px; height: 9px; margin-left: -27px;
+  border-radius: 50%; background: radial-gradient(ellipse, rgba(0, 0, 0, .55), transparent 70%);
+}
+
+/* hover first so behaviour states below always win */
+.bob-fab:hover .bob-eye { width: 16px; height: 16px; }
+.bob-fab:hover .bob-brow--l { transform: translateY(-2px); }
+.bob-fab:hover .bob-brow--r { transform: translateY(-2px); }
+
+/* ---------- behaviour states ---------- */
+.bob-root[data-state="listening"] .bob-eye {
+  width: 16px; height: 16px;
+  box-shadow: 0 0 0 5px rgba(238, 39, 55, .12), 0 0 16px 4px rgba(238, 39, 55, .55);
+}
+.bob-root[data-state="listening"] .bob-mouth::after {
+  width: 9px; height: 9px; left: 5px; border: 2px solid #ff8a97; border-radius: 50%;
+}
+.bob-root[data-state="listening"] .bob-arm { transform: rotate(-35deg); }
+.bob-root[data-state="listening"] .bob-arm--r { transform: rotate(35deg); }
+.bob-root[data-state="listening"] .bob-core i { background: #ff8a97; box-shadow: 0 0 12px #ff5f70; animation-duration: .7s; }
+
+.bob-root[data-state="thinking"] .bob-eye {
+  height: 4px; top: 15px; border-radius: 4px; background: #ff8a97;
+  box-shadow: 0 0 10px rgba(255, 138, 151, .7);
+}
+.bob-root[data-state="thinking"] .bob-eye i { opacity: 0; }
+.bob-root[data-state="thinking"] .bob-brow--l { transform: translateY(2px) rotate(-8deg); }
+.bob-root[data-state="thinking"] .bob-brow--r { transform: translateY(2px) rotate(8deg); }
+.bob-root[data-state="thinking"] .bob-mouth::after { opacity: 0; }
+.bob-root[data-state="thinking"] .bob-mouth i { opacity: 1; height: 3px; animation: bobThink .9s ease-in-out infinite alternate; }
+.bob-root[data-state="thinking"] .bob-core i { background: #ffd36e; box-shadow: 0 0 12px #ffd36e; animation-duration: .5s; }
+
+.bob-root[data-state="speaking"] .bob-mouth::after { opacity: 0; }
+.bob-root[data-state="speaking"] .bob-mouth i { opacity: 1; animation: bobTalk .42s ease-in-out infinite alternate; }
+.bob-root[data-state="speaking"] .bob-mouth i:nth-child(2) { animation-delay: .10s; }
+.bob-root[data-state="speaking"] .bob-mouth i:nth-child(3) { animation-delay: .22s; }
+.bob-root[data-state="speaking"] .bob-mouth i:nth-child(4) { animation-delay: .32s; }
+.bob-root[data-state="speaking"] .bob-eye { box-shadow: 0 0 16px 3px rgba(238, 39, 55, .55); }
+.bob-root[data-state="speaking"] .bob-core i { animation-duration: .4s; }
+.bob-root[data-state="speaking"] .bob-head { animation: bobNod .6s ease-in-out infinite; }
+
+.bob-fab.is-blinking .bob-eye { height: 2px; top: 17px; border-radius: 2px; background: #ff8a97; }
+.bob-fab.is-blinking .bob-eye i { opacity: 0; }
+.bob-fab.is-waving .bob-arm--r { animation: bobWave .28s ease-in-out 4 alternate; }
+.bob-fab.is-waving .bob-eye { border-radius: 50% 50% 40% 40%; }
+
+@keyframes bobFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes bobRing { 0% { transform: scaleX(.8); opacity: .65; } 100% { transform: scaleX(1.5); opacity: 0; } }
+@keyframes bobAntenna { 0%, 92%, 100% { opacity: 1; transform: scale(1); } 95% { opacity: .35; transform: scale(.6); } }
+@keyframes bobCorePulse { 0%, 100% { opacity: .65; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
+@keyframes bobTalk { from { height: 2px; } to { height: 8px; } }
+@keyframes bobThink { from { transform: translateX(-2px); opacity: .4; } to { transform: translateX(2px); opacity: 1; } }
+@keyframes bobNod { 0%, 100% { transform: rotate(var(--tilt)) translateY(0); } 50% { transform: rotate(var(--tilt)) translateY(1.5px); } }
+@keyframes bobWave { from { transform: rotate(-105deg); } to { transform: rotate(-150deg); } }
 
 /* ---------- panel ---------- */
 .bob-panel {
-  position: fixed; right: 24px; bottom: 100px; pointer-events: auto;
-  width: min(380px, calc(100vw - 32px)); height: min(560px, calc(100vh - 130px));
+  position: fixed; right: 20px; bottom: 122px; pointer-events: auto;
+  width: min(380px, calc(100vw - 32px)); height: min(540px, calc(100vh - 150px));
   display: flex; flex-direction: column; overflow: hidden;
   border-radius: 18px; border: 1px solid var(--bob-line);
   background:
@@ -183,9 +322,9 @@
 
 /* ---------- responsive ---------- */
 @media (max-width: 480px) {
-  .bob-fab { right: 16px; bottom: 16px; width: 56px; height: 56px; }
-  .bob-panel { right: 12px; left: 12px; bottom: 84px; width: auto; height: min(72vh, 560px); }
-  .bob-tooltip { right: 84px; bottom: 28px; }
+  .bob-fab { right: 10px; bottom: 10px; transform-origin: bottom right; }
+  .bob-panel { right: 10px; left: 10px; bottom: 114px; width: auto; height: min(70vh, 540px); }
+  .bob-tooltip { right: 104px; bottom: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

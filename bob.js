@@ -19,8 +19,26 @@
     <div class="bob-tooltip" id="bobTip">Ask Bob anything ↗</div>
     <button class="bob-fab" id="bobFab" type="button" aria-label="Open Bob, the portfolio assistant" aria-expanded="false">
       <span class="bob-fab-ring" aria-hidden="true"></span>
-      <span class="bob-fab-face" aria-hidden="true">B</span>
-      <span class="bob-fab-dot" aria-hidden="true"></span>
+      <span class="bob-bot" aria-hidden="true">
+        <span class="bob-antenna"><i></i></span>
+        <span class="bob-head">
+          <span class="bob-face">
+            <span class="bob-brow bob-brow--l"></span>
+            <span class="bob-brow bob-brow--r"></span>
+            <span class="bob-eye bob-eye--l"><i></i></span>
+            <span class="bob-eye bob-eye--r"><i></i></span>
+            <span class="bob-cheek bob-cheek--l"></span>
+            <span class="bob-cheek bob-cheek--r"></span>
+            <span class="bob-mouth"><i></i><i></i><i></i><i></i></span>
+          </span>
+        </span>
+        <span class="bob-body">
+          <span class="bob-arm bob-arm--l"></span>
+          <span class="bob-arm bob-arm--r"></span>
+          <span class="bob-core"><i></i></span>
+        </span>
+        <span class="bob-shadow"></span>
+      </span>
     </button>
     <section class="bob-panel" id="bobPanel" role="dialog" aria-label="Bob, portfolio assistant" aria-hidden="true">
       <header class="bob-head">
@@ -67,6 +85,38 @@
   let listening = false;
   let recognition = null;
   const history = [];
+
+  /* ---------- robot state + micro-animations ---------- */
+  root.dataset.state = 'idle';
+  const setState = state => { root.dataset.state = state; };
+  let speechToken = 0;
+
+  function wave() {
+    fab.classList.add('is-waving');
+    setTimeout(() => fab.classList.remove('is-waving'), 1100);
+  }
+
+  function scheduleBlink() {
+    setTimeout(() => {
+      if (root.dataset.state !== 'speaking') {
+        fab.classList.add('is-blinking');
+        setTimeout(() => fab.classList.remove('is-blinking'), 150);
+      }
+      scheduleBlink();
+    }, 2600 + Math.random() * 3400);
+  }
+  scheduleBlink();
+
+  /* eyes follow the cursor while Bob is idle */
+  document.addEventListener('mousemove', e => {
+    if (open || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const r = fab.getBoundingClientRect();
+    const dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / 260));
+    const dy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / 260));
+    fab.style.setProperty('--eye-x', (dx * 3.2).toFixed(1) + 'px');
+    fab.style.setProperty('--eye-y', (dy * 3.2).toFixed(1) + 'px');
+    fab.style.setProperty('--tilt', (dx * 5).toFixed(1) + 'deg');
+  }, { passive: true });
 
   /* ---------- safe text rendering (auto-linkify, no innerHTML from model) ---------- */
   function putText(el, text) {
@@ -144,8 +194,10 @@
 
   /* ---------- voice ---------- */
   function speak(text) {
-    if (!voiceOn || !synth) return;
+    const token = ++speechToken;
+    if (!voiceOn || !synth) { setState('idle'); return; }
     synth.cancel();
+    setState('speaking');
     const clean = String(text)
       .replace(/https?:\/\/\S+/g, 'link')
       .replace(/[↗✦●🙂👋😊]/g, '')
@@ -156,6 +208,9 @@
     u.pitch = 1.04;
     const voice = (synth.getVoices() || []).find(v => /en-IN|en-US/i.test(v.lang) && /natural|google|chrome/i.test(v.name));
     if (voice) u.voice = voice;
+    const done = () => { if (token === speechToken && root.dataset.state === 'speaking') setState('idle'); };
+    u.onend = done;
+    u.onerror = done;
     synth.speak(u);
   }
 
@@ -164,6 +219,9 @@
     mic.classList.toggle('is-listening', state);
     mic.title = state ? 'Listening… click to stop' : 'Speak your message';
     mic.textContent = state ? '⏹' : '🎤';
+    if (root.dataset.state !== 'thinking' && root.dataset.state !== 'speaking') {
+      setState(state ? 'listening' : 'idle');
+    }
   }
 
   function startListening() {
@@ -209,6 +267,7 @@
     const message = String(text || '').trim();
     if (!message || busy) return;
     busy = true;
+    setState('thinking');
     input.value = '';
     addMessage('user', message);
     history.push({ role: 'user', text: message });
@@ -237,6 +296,8 @@
     fab.setAttribute('aria-expanded', String(open));
     tip.classList.toggle('is-hidden', open);
     if (open) {
+      setState('idle');
+      wave();
       if (!greeted) {
         greeted = true;
         addMessage('bot', 'Hey, I’m Bob! 👋 Ask me about projects, business website demos, the CV or how to get in touch.');
@@ -246,6 +307,8 @@
       if (listening && recognition) recognition.stop();
       setListening(false);
       if (synth) synth.cancel();
+      speechToken++;
+      setState('idle');
     }
   }
 
@@ -259,7 +322,11 @@
     voiceToggle.textContent = voiceOn ? '🔊' : '🔇';
     voiceToggle.title = voiceOn ? 'Mute voice replies' : 'Unmute voice replies';
     voiceToggle.setAttribute('aria-label', voiceToggle.title);
-    if (!voiceOn && synth) synth.cancel();
+    if (!voiceOn) {
+      speechToken++;
+      if (synth) synth.cancel();
+      setState('idle');
+    }
   });
   $('bobChips').addEventListener('click', e => {
     const chip = e.target.closest('.bob-chip');

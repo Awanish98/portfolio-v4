@@ -489,18 +489,19 @@
     }
   };
 
-  /* resume across pages on first gesture if the user left it on */
+  /* browsers block autoplay — begin on the first real gesture, unless opted out */
   try {
-    if (localStorage.getItem(WANT_KEY) === '1' && !allMuted) {
+    const pref = localStorage.getItem(WANT_KEY);
+    if (pref !== '0' && !allMuted) {
       const resume = e => {
-        if (e.target && e.target.closest && e.target.closest('#cwSound')) {
-          window.removeEventListener('pointerdown', resume);
-          return;
-        }
         window.removeEventListener('pointerdown', resume);
-        start();
+        window.removeEventListener('keydown', resume);
+        if (e.target && e.target.closest &&
+            e.target.closest('#cwSound, #cwMuteAll')) return; /* let the button decide */
+        if (!allMuted && !playing) start();
       };
       window.addEventListener('pointerdown', resume, { passive: true });
+      window.addEventListener('keydown', resume);
     }
   } catch (e) { /* ignore */ }
 

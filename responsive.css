@@ -18,8 +18,12 @@ html, body { overflow-x: clip; }
   filter: blur(14px) !important;
   pointer-events: none !important;
 }
-/* Bob stays above any injected overlay, even if Netlify re-adds it. */
+/* Bob stays above any injected overlay, even if Netlify re-adds it.
+   The old badge rectangle is reused as his CSS bench (see bob.css). */
 .bob-root { z-index: 2147483646 !important; }
+
+/* Back-to-top used to sit exactly in the badge/Bob corner — park it beside the bench. */
+.to-top { right: calc(210px * var(--bench-scale, 1)) !important; bottom: calc(12px + var(--bench-safe, 0px)) !important; }
 
 /* Grid/flex children must be allowed to shrink below their content width. */
 .sh-hero-inner > *, .hero-inner > *, .about-grid > *,
@@ -68,23 +72,24 @@ html, body { overflow-x: clip; }
   .filter-btn, .chip, .bob-chip { min-height: 38px; }
 }
 @supports (padding: env(safe-area-inset-bottom)) {
-  .bob-fab { bottom: calc(14px + env(safe-area-inset-bottom)); }
-  .bob-panel { bottom: calc(122px + env(safe-area-inset-bottom)); }
-  @media (max-width: 480px) {
-    .bob-fab { bottom: calc(8px + env(safe-area-inset-bottom)); }
-    .bob-panel { bottom: calc(116px + env(safe-area-inset-bottom)); }
-  }
+  .bob-root { --bench-safe: env(safe-area-inset-bottom, 0px); }
 }
 
-/* ---------- Bob on small/short screens ---------- */
+/* ---------- Bob's bench on small/short screens ----------
+   Only the shared dial changes: bench, Bob, bubble, panel and to-top stay aligned. */
+@media (max-width: 900px) {
+  .bob-root { --bench-scale: .92; }
+}
 @media (max-width: 560px) {
-  .bob-fab { transform: scale(.9); transform-origin: bottom right; }
+  .bob-root { --bench-scale: .86; }
   .bob-panel { height: min(72vh, 520px); }
-  .bob-tooltip { font-size: .9rem; padding: 7px 12px; }
+}
+@media (max-width: 420px) {
+  .bob-root { --bench-scale: .78; }
 }
 @media (max-height: 560px) {
-  .bob-panel { height: calc(100vh - 146px); }
-  .bob-tooltip { bottom: 40px; }
+  .bob-root { --bench-scale: .82; }
+  .bob-panel { height: calc(100vh - 150px - var(--bench-safe)); }
   /* Landscape phones: keep every nav link reachable. */
   .nav-links {
     max-height: calc(100vh - 70px); overflow-y: auto;
@@ -92,7 +97,7 @@ html, body { overflow-x: clip; }
   }
 }
 @media (max-height: 420px) {
-  .bob-fab { transform: scale(.76); transform-origin: bottom right; }
+  .bob-root { --bench-scale: .66; }
 }
 
 /* ---------- smaller screens: tighter grids, calmer motion ---------- */

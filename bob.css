@@ -14,6 +14,10 @@
   --cyan: #13C8DD;
   --mint: #42ECA5;
   --neon: #72F58C;
+  /* One control dial for the whole bench scene (Bob + bench + bubble + panel). */
+  --bench-scale: 1;
+  --bench-lift: 42px;   /* top surface of the plank, measured from viewport bottom */
+  --bench-safe: 0px;    /* filled from env(safe-area-inset-bottom) where supported */
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -23,9 +27,39 @@
 .bob-root *, .bob-root *::before, .bob-root *::after { box-sizing: border-box; }
 .bob-root button, .bob-root input { font: inherit; }
 
-/* ---------- floating 3D mascot ---------- */
+/* ---------- the old Netlify badge footprint is now Bob's bench ---------- */
+.bob-bench {
+  position: fixed; right: var(--bench-safe); bottom: var(--bench-safe);
+  width: 197px; height: 64px; z-index: 0; pointer-events: none;
+  transform: scale(var(--bench-scale)); transform-origin: bottom right;
+}
+.bob-bench-plank {
+  position: absolute; right: 6px; bottom: calc(var(--bench-lift) - 12px);
+  width: 176px; height: 12px; border-radius: 6px 6px 3px 3px;
+  background: linear-gradient(180deg, #7ef1dc 0%, #21bdae 45%, #0d7d76 100%);
+  border: 1px solid rgba(255, 255, 255, .4);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, .45), inset 0 2px 0 rgba(255, 255, 255, .5), 0 0 18px rgba(0, 217, 197, .25);
+}
+.bob-bench-plank::before {
+  content: ''; position: absolute; left: 12px; right: 12px; top: 3px; height: 2px;
+  border-radius: 2px; opacity: .5;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.38) 0 12px, transparent 12px 24px);
+}
+.bob-bench-leg {
+  position: absolute; bottom: 6px; width: 10px; height: calc(var(--bench-lift) - 18px);
+  border-radius: 2px 2px 4px 4px;
+  background: linear-gradient(180deg, #0e8f86, #064b49);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+.bob-bench-leg--l { right: 18px; }
+.bob-bench-leg--r { right: 158px; }
+
+/* ---------- Bob, seated on the bench ---------- */
 .bob-tooltip {
-  position: fixed; right: 112px; bottom: 52px; pointer-events: none;
+  position: fixed;
+  right: calc(164px * var(--bench-scale));
+  bottom: calc(106px * var(--bench-scale) + var(--bench-safe));
+  pointer-events: none;
   padding: 9px 16px; border-radius: 20px 20px 6px 20px; white-space: nowrap;
   background: linear-gradient(145deg, rgba(214, 255, 238, .96), rgba(180, 250, 220, .92));
   border: 1px solid rgba(114, 245, 140, .55);
@@ -44,20 +78,24 @@
 
 .bob-fab {
   --eye-x: 0px; --eye-y: 0px; --tilt: 0deg;
-  position: fixed; right: 18px; bottom: 14px; pointer-events: auto;
+  position: fixed;
+  right: calc(58px * var(--bench-scale));
+  bottom: calc(var(--bench-lift) * var(--bench-scale) + var(--bench-safe));
+  pointer-events: auto;
   width: 96px; height: 106px; padding: 0; border: 0; background: transparent;
   cursor: pointer; filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .4));
+  transform: scale(var(--bench-scale)); transform-origin: bottom right;
   transition: transform .35s cubic-bezier(.16, 1, .3, 1);
 }
-.bob-fab:hover { transform: translateY(-3px) scale(1.04); }
+.bob-fab:hover { transform: translateY(-3px) scale(calc(var(--bench-scale) * 1.04)); }
 .bob-fab-ring {
-  position: absolute; left: 50%; bottom: 5px; width: 62px; height: 14px; margin-left: -31px;
+  position: absolute; left: 50%; bottom: 2px; width: 62px; height: 14px; margin-left: -31px;
   border-radius: 50%; background: radial-gradient(ellipse, rgba(66, 236, 165, .35), transparent 70%);
   animation: bobRing 2.6s ease-out infinite;
 }
 .bob-bot {
   position: absolute; inset: 0;
-  animation: bobFloat 3.2s ease-in-out infinite;
+  animation: bobSit 3.6s ease-in-out infinite;
 }
 
 /* glowing antenna */
@@ -161,8 +199,26 @@
 }
 .bob-arm--l { top: 4px; left: -6px; transform: rotate(38deg); }
 .bob-arm--r { top: 9px; right: -3px; width: 6px; height: 10px; transform: rotate(-12deg); }
+
+/* dangling legs — the signature "sitting on the bench" look */
+.bob-legs { position: absolute; inset: 0; pointer-events: none; }
+.bob-leg {
+  position: absolute; bottom: -16px; width: 8px; height: 25px;
+  border-radius: 0 0 5px 5px;
+  background: linear-gradient(180deg, var(--turq), #0aa99f);
+  border: 1px solid rgba(255, 255, 255, .35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 2px 4px rgba(0, 0, 0, .3);
+  transform-origin: top center;
+}
+.bob-leg--l { left: 40px; animation: bobLegSwingL 2.3s ease-in-out infinite; }
+.bob-leg--r { left: 54px; animation: bobLegSwingR 2.3s ease-in-out infinite; }
+.bob-leg i {
+  position: absolute; bottom: -3px; left: -3px; width: 14px; height: 6px;
+  border-radius: 6px; background: linear-gradient(145deg, #ff6b7a, #ee2737);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .35);
+}
 .bob-shadow {
-  position: absolute; bottom: 6px; left: 50%; width: 54px; height: 9px; margin-left: -27px;
+  position: absolute; bottom: 4px; left: 50%; width: 54px; height: 9px; margin-left: -27px;
   border-radius: 50%; background: radial-gradient(ellipse, rgba(20, 80, 70, .32), transparent 70%);
 }
 
@@ -194,7 +250,10 @@
 .bob-fab.is-waving .bob-arm--l { animation: bobWave .26s ease-in-out 4 alternate; }
 .bob-fab.is-waving .bob-rhead { animation: bobHop .3s ease-in-out 3; }
 
-@keyframes bobFloat { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-5px) rotate(1deg); } }
+/* seated: tiny breathing wobble instead of a floating bob */
+@keyframes bobSit { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-1.5px) rotate(1deg); } }
+@keyframes bobLegSwingL { 0%, 100% { transform: rotate(9deg); } 50% { transform: rotate(-13deg); } }
+@keyframes bobLegSwingR { 0%, 100% { transform: rotate(-11deg); } 50% { transform: rotate(14deg); } }
 @keyframes bobRing { 0% { transform: scale(.85); opacity: .7; } 100% { transform: scale(1.45); opacity: 0; } }
 @keyframes bobAntenna { 0%, 90%, 100% { transform: scale(1); opacity: 1; } 94% { transform: scale(.7); opacity: .55; } }
 @keyframes bobTalk { from { height: 3px; } to { height: 9px; } }
@@ -234,13 +293,48 @@
 .bob-fab.is-excited .bob-arm--l { transform: rotate(-80deg); }
 .bob-fab.is-excited .bob-smile { width: 14px; height: 6px; margin-left: -7px; }
 
+/* ---------- funny seated idle antics ---------- */
+.bob-fab.is-tapping .bob-leg--r { animation-duration: .42s; }
+.bob-fab.is-tapping .bob-leg--l { animation-duration: 2.3s; }
+
+.bob-fab.is-yawning .bob-eye { height: 3px; top: 11px; border-radius: 6px; background: #d9fff4; }
+.bob-fab.is-yawning .bob-eye i { opacity: 0; }
+.bob-fab.is-yawning .bob-smile {
+  width: 10px; height: 10px; margin-left: -5px; border: 0;
+  background: #0a9c92; border-radius: 50%;
+  animation: bobYawn .8s ease-in-out infinite alternate;
+}
+.bob-fab.is-yawning .bob-rhead { animation: bobYawnHead 1.2s ease-in-out infinite; }
+.bob-fab.is-yawning .bob-arm--l { transform: rotate(-62deg); }
+.bob-fab.is-yawning .bob-arm--r { transform: rotate(42deg); }
+@keyframes bobYawn { from { transform: scaleY(.45); } to { transform: scaleY(1.2); } }
+@keyframes bobYawnHead {
+  0%, 100% { transform: rotate(var(--tilt)) rotate(-3deg) translateY(0); }
+  50% { transform: rotate(var(--tilt)) rotate(-10deg) translateY(-2px); }
+}
+
+.bob-fab.is-peeking .bob-rhead { animation: bobPeek 1.15s ease-in-out infinite; }
+.bob-fab.is-peeking .bob-eye { width: 17px; height: 17px; top: 4px; }
+@keyframes bobPeek {
+  0%, 100% { transform: rotate(var(--tilt)) rotate(-9deg) translateX(-3px); }
+  50% { transform: rotate(var(--tilt)) rotate(8deg) translateX(3px); }
+}
+
+.bob-fab.is-hop .bob-bot { animation: bobHop .3s ease-in-out 3; }
+
 .bob-fab.is-pop { animation: bobPop .4s cubic-bezier(.16, 1, .3, 1); }
-@keyframes bobPop { 0% { transform: scale(1); } 40% { transform: scale(1.13) translateY(-3px); } 100% { transform: scale(1); } }
+@keyframes bobPop {
+  0% { transform: scale(var(--bench-scale)); }
+  40% { transform: scale(calc(var(--bench-scale) * 1.13)) translateY(-3px); }
+  100% { transform: scale(var(--bench-scale)); }
+}
 
 /* ---------- panel ---------- */
 .bob-panel {
-  position: fixed; right: 20px; bottom: 122px; pointer-events: auto;
-  width: min(380px, calc(100vw - 32px)); height: min(540px, calc(100vh - 150px));
+  position: fixed; right: 20px;
+  bottom: calc(160px * var(--bench-scale) + var(--bench-safe)); pointer-events: auto;
+  width: min(380px, calc(100vw - 32px));
+  height: min(540px, calc(100vh - 190px - var(--bench-safe)));
   display: flex; flex-direction: column; overflow: hidden;
   border-radius: 18px; border: 1px solid var(--bob-line);
   background:
@@ -360,10 +454,10 @@
 }
 
 /* ---------- responsive ---------- */
-@media (max-width: 480px) {
-  .bob-fab { right: 8px; bottom: 8px; transform-origin: bottom right; }
-  .bob-panel { right: 10px; left: 10px; bottom: 116px; width: auto; height: min(70vh, 540px); }
-  .bob-tooltip { right: 108px; bottom: 46px; }
+/* Scale is driven by --bench-scale in responsive.css (loaded last). */
+@media (max-width: 560px) {
+  .bob-panel { right: 10px; left: 10px; width: auto; height: min(70vh, 540px); }
+  .bob-tooltip { font-size: .9rem; padding: 7px 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

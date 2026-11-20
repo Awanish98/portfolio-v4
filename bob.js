@@ -16,26 +16,22 @@
   root.className = 'bob-root';
   root.id = 'bobRoot';
   root.innerHTML = `
-    <div class="bob-tooltip" id="bobTip">Ask Bob anything ↗</div>
+    <div class="bob-tooltip" id="bobTip">Hello!</div>
     <button class="bob-fab" id="bobFab" type="button" aria-label="Open Bob, the portfolio assistant" aria-expanded="false">
       <span class="bob-fab-ring" aria-hidden="true"></span>
       <span class="bob-bot" aria-hidden="true">
         <span class="bob-antenna"><i></i></span>
         <span class="bob-rhead">
-          <span class="bob-face">
-            <span class="bob-brow bob-brow--l"></span>
-            <span class="bob-brow bob-brow--r"></span>
+          <span class="bob-visor">
             <span class="bob-eye bob-eye--l"><i></i></span>
             <span class="bob-eye bob-eye--r"><i></i></span>
-            <span class="bob-cheek bob-cheek--l"></span>
-            <span class="bob-cheek bob-cheek--r"></span>
-            <span class="bob-mouth"></span>
           </span>
+          <span class="bob-smile"></span>
         </span>
         <span class="bob-body">
           <span class="bob-arm bob-arm--l"></span>
           <span class="bob-arm bob-arm--r"></span>
-          <span class="bob-belly"><i></i><i></i></span>
+          <span class="bob-side"></span>
         </span>
         <span class="bob-shadow"></span>
       </span>

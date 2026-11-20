@@ -18,13 +18,14 @@
       '<button class="cw-chip-sound" id="cwSound" type="button" aria-pressed="false" aria-label="Play ambient music" title="Play ambient music">' +
         '<span class="cw-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>' +
       '</button>' +
+      '<button class="cw-chip-sound cw-chip-muteall" id="cwMuteAll" type="button" aria-pressed="false" aria-label="Mute all sounds" title="Mute all sounds">🔊</button>' +
     '</div>';
   const root = holder.firstElementChild;
   const host = document.querySelector('.nav') || document.querySelector('.print-bar') || document.body;
   host.insertBefore(root, host.querySelector('.nav-cta, .btn-print') || null);
   if (!$('cwRoot')) return;
 
-  const cwIcon = $('cwIcon'), cwTemp = $('cwTemp'), cwTime = $('cwTime'), sound = $('cwSound');
+  const cwIcon = $('cwIcon'), cwTemp = $('cwTemp'), cwTime = $('cwTime'), sound = $('cwSound'), muteAllBtn = $('cwMuteAll');
 
   /* ---------------------------------------------------------
      1. WEATHER + CLOCK
@@ -185,6 +186,7 @@
      --------------------------------------------------------- */
   const WANT_KEY = 'cwAmbientOn';
   const SFX_KEY = 'bobSfxOn';
+  const ALL_KEY = 'cwMuteAll';
   const CHORDS = [
     [174.61, 261.63, 329.63, 440.00, 523.25], // Fmaj9
     [196.00, 246.94, 293.66, 392.00, 493.88], // Gadd9
@@ -192,14 +194,17 @@
     [164.81, 261.63, 329.63, 392.00, 493.88]  // Cmaj9
   ];
 
-  let ctx = null, master = null, tone = null, delayNode = null;
+  let ctx = null, master = null, tone = null, delayNode = null, shakerBuf = null;
   let chordTimer = null, fadeTimer = null, voices = [], chordIndex = 0, playing = false;
 
   /* Bob's reaction blips share this AudioContext but have their own bus,
      so they stay crisp even when the ambient pad is muted. */
-  let sfxOn = true, sfxGain = null;
+  let sfxOn = true, sfxGain = null, allMuted = false;
   const lastSfx = Object.create(null);
-  try { sfxOn = localStorage.getItem(SFX_KEY) !== '0'; } catch (e) { /* ignore */ }
+  try {
+    sfxOn = localStorage.getItem(SFX_KEY) !== '0';
+    allMuted = localStorage.getItem(ALL_KEY) === '1';
+  } catch (e) { /* ignore */ }
 
   function setUI(on) {
     sound.classList.toggle('is-playing', on);
@@ -209,6 +214,16 @@
   }
   setUI(false);
 
+  function syncMuteUI() {
+    root.classList.toggle('is-all-muted', allMuted);
+    muteAllBtn.textContent = allMuted ? '🔇' : '🔊';
+    muteAllBtn.setAttribute('aria-pressed', String(allMuted));
+    const label = allMuted ? 'Unmute all sounds' : 'Mute all sounds';
+    muteAllBtn.setAttribute('aria-label', label);
+    muteAllBtn.title = label;
+  }
+  syncMuteUI();
+
   function ensureAudio() {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return false;
@@ -217,12 +232,12 @@
       master = ctx.createGain();
       master.gain.value = 0;
       const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = -18; comp.ratio.value = 4;
+      comp.threshold.value = -14; comp.ratio.value = 3;
       comp.attack.value = .01; comp.release.value = .3;
       master.connect(comp); comp.connect(ctx.destination);
 
       tone = ctx.createBiquadFilter();
-      tone.type = 'lowpass'; tone.frequency.value = 1050; tone.Q.value = .5;
+      tone.type = 'lowpass'; tone.frequency.value = 1500; tone.Q.value = .5;
       tone.connect(master);
 
       const delay = ctx.createDelay(1), wet = ctx.createGain(), fb = ctx.createGain();
@@ -247,7 +262,7 @@
       }
       noise.buffer = buf; noise.loop = true;
       const nf = ctx.createBiquadFilter(); nf.type = 'lowpass'; nf.frequency.value = 620;
-      const ng = ctx.createGain(); ng.gain.value = .012;
+      const ng = ctx.createGain(); ng.gain.value = .018;
       noise.connect(nf); nf.connect(ng); ng.connect(master);
       const nlfo = ctx.createOscillator(), namt = ctx.createGain();
       nlfo.frequency.value = .08; namt.gain.value = .005;
@@ -258,10 +273,12 @@
   }
 
   function playChord() {
-    if (!ctx || !playing) return;
+    if (!ctx || !playing || allMuted) return;
     const now = ctx.currentTime, dur = 9.2;
     const chord = CHORDS[chordIndex++ % CHORDS.length];
     const nodes = [];
+
+    /* warm sustained pad */
     chord.forEach((freq, i) => {
       const upper = i === chord.length - 1;
       const osc = ctx.createOscillator();
@@ -269,13 +286,13 @@
       osc.frequency.value = freq;
       osc.detune.value = (Math.random() * 2 - 1) * 5;
       const g = ctx.createGain();
-      const peak = upper ? .042 : .082;
+      const peak = upper ? .055 : .10;
       g.gain.setValueAtTime(0, now);
-      g.gain.linearRampToValueAtTime(peak, now + 3);
-      g.gain.setValueAtTime(peak, now + dur - 2.6);
+      g.gain.linearRampToValueAtTime(peak, now + 2.4);
+      g.gain.setValueAtTime(peak, now + dur - 2.4);
       g.gain.linearRampToValueAtTime(0, now + dur);
       const lfo = ctx.createOscillator(), amt = ctx.createGain();
-      lfo.frequency.value = .06 + i * .013; amt.gain.value = upper ? .012 : .026;
+      lfo.frequency.value = .06 + i * .013; amt.gain.value = upper ? .012 : .028;
       lfo.connect(amt); amt.connect(g.gain);
       lfo.start(now); lfo.stop(now + dur + .1);
       osc.connect(g); g.connect(tone);
@@ -283,20 +300,68 @@
       nodes.push(osc, lfo);
     });
 
-    /* sparse bell arpeggio drifting over the pad */
+    /* soft sub bass gives the loop a heartbeat */
+    const bass = ctx.createOscillator(), bassG = ctx.createGain();
+    bass.type = 'triangle';
+    bass.frequency.value = chord[0] / 2;
+    bassG.gain.setValueAtTime(0, now);
+    bassG.gain.linearRampToValueAtTime(.12, now + 1.1);
+    bassG.gain.setValueAtTime(.12, now + dur - 2);
+    bassG.gain.linearRampToValueAtTime(0, now + dur);
+    bass.connect(bassG); bassG.connect(master);
+    bass.start(now); bass.stop(now + dur + .1);
+    nodes.push(bass);
+
+    /* mallet melody — turns the pad into a real instrumental */
+    const scale = [chord[2], chord[3], chord[4], chord[3] * 2, chord[4] * 2, chord[2] * 2];
+    [0, .72, 1.44, 2.16, 2.88, 3.6, 4.32, 5.04, 5.76].forEach((offset, k) => {
+      if (Math.random() < .18) return; /* leave a little air */
+      const t = now + offset, f = scale[(k + chordIndex) % scale.length];
+      const o = ctx.createOscillator(), h = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; h.type = 'triangle';
+      o.frequency.value = f; h.frequency.value = f * 2;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.linearRampToValueAtTime(.075, t + .012);
+      g.gain.exponentialRampToValueAtTime(.0001, t + .75);
+      o.connect(g); h.connect(g); g.connect(master);
+      if (delayNode) g.connect(delayNode);
+      o.start(t); h.start(t); o.stop(t + .8); h.stop(t + .8);
+      nodes.push(o, h);
+    });
+
+    /* airy high bells */
     [.9, 3.2, 5.5].forEach((offset, k) => {
       const t = now + offset;
       const bell = ctx.createOscillator(), bg = ctx.createGain();
       bell.type = 'sine';
       bell.frequency.value = chord[(k + 1) % chord.length] * 2;
       bg.gain.setValueAtTime(0, t);
-      bg.gain.linearRampToValueAtTime(.03, t + .025);
+      bg.gain.linearRampToValueAtTime(.045, t + .025);
       bg.gain.exponentialRampToValueAtTime(.0001, t + 2.2);
       bell.connect(bg); bg.connect(master);
       if (delayNode) bg.connect(delayNode);
       bell.start(t); bell.stop(t + 2.3);
       nodes.push(bell);
     });
+
+    /* brushed shaker — very quiet pulse, no drums */
+    if (!shakerBuf) {
+      shakerBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * .12), ctx.sampleRate);
+      const sd = shakerBuf.getChannelData(0);
+      for (let i = 0; i < sd.length; i++) sd[i] = (Math.random() * 2 - 1) * (1 - i / sd.length);
+    }
+    for (let offset = .36; offset < dur - 1; offset += .72) {
+      const t = now + offset;
+      const src = ctx.createBufferSource(), hp = ctx.createBiquadFilter(), g = ctx.createGain();
+      src.buffer = shakerBuf;
+      hp.type = 'highpass'; hp.frequency.value = 5200;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.linearRampToValueAtTime(.018, t + .005);
+      g.gain.exponentialRampToValueAtTime(.0001, t + .11);
+      src.connect(hp); hp.connect(g); g.connect(master);
+      src.start(t); src.stop(t + .12);
+      nodes.push(src);
+    }
 
     voices.push({ nodes: nodes, until: now + dur });
     voices = voices.filter(v => {
@@ -310,14 +375,14 @@
   }
 
   function start() {
-    if (playing) return;
+    if (playing || allMuted) return;
     if (!ensureAudio()) { sound.title = 'Audio unavailable'; return; }
     playing = true;
     ctx.resume().catch(() => {});
     clearTimeout(fadeTimer);
     master.gain.cancelScheduledValues(ctx.currentTime);
     master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(.55, ctx.currentTime + 1.8);
+    master.gain.linearRampToValueAtTime(.8, ctx.currentTime + 1.4);
     playChord();
     setUI(true);
     try { localStorage.setItem(WANT_KEY, '1'); } catch (e) { /* ignore */ }
@@ -333,13 +398,43 @@
       master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
       master.gain.linearRampToValueAtTime(0, ctx.currentTime + .5);
       fadeTimer = setTimeout(() => {
-        if (!playing && !sfxOn && ctx && ctx.state === 'running') ctx.suspend().catch(() => {});
+        if (!playing && !sfxOn && !allMuted && ctx && ctx.state === 'running') ctx.suspend().catch(() => {});
       }, 750);
     }
     setUI(false);
   }
 
-  sound.addEventListener('click', () => { playing ? stop() : start(); });
+  sound.addEventListener('click', () => {
+    if (allMuted) setMuteAll(false);
+    playing ? stop() : start();
+  });
+
+  /* one kill switch for every sound on the site */
+  function setMuteAll(on) {
+    allMuted = !!on;
+    try { localStorage.setItem(ALL_KEY, allMuted ? '1' : '0'); } catch (e) { /* ignore */ }
+    syncMuteUI();
+    if (ctx) {
+      clearTimeout(fadeTimer);
+      master.gain.cancelScheduledValues(ctx.currentTime);
+      master.gain.setValueAtTime(master.gain.value, ctx.currentTime);
+      if (allMuted) {
+        master.gain.linearRampToValueAtTime(0, ctx.currentTime + .25);
+        fadeTimer = setTimeout(() => {
+          if (allMuted && ctx && ctx.state === 'running') ctx.suspend().catch(() => {});
+        }, 400);
+      } else {
+        ctx.resume().catch(() => {});
+        master.gain.linearRampToValueAtTime(playing ? .8 : 0, ctx.currentTime + .8);
+      }
+    }
+    if (!allMuted) {
+      if (!playing && localStorage.getItem(WANT_KEY) === '1') start();
+      else if (playing) { clearTimeout(chordTimer); playChord(); }
+    }
+    window.dispatchEvent(new CustomEvent('cwMuteAll', { detail: { muted: allMuted } }));
+  }
+  muteAllBtn.addEventListener('click', () => setMuteAll(!allMuted));
 
   /* ---------- BOB REACTION SOUNDS — tiny generated blips, no files ---------- */
   function sfxBus() {
@@ -363,7 +458,7 @@
   };
 
   function playSfx(name) {
-    if (!sfxOn) return;
+    if (!sfxOn || allMuted) return;
     const now = Date.now(), p = SFX[name] || SFX.pop;
     if (now - (lastSfx[name] || 0) < p.gap) return; /* never spam */
     const bus = sfxBus(); if (!bus) return;
@@ -385,6 +480,8 @@
     sfx: playSfx,
     sfxEnabled: () => sfxOn,
     ambientEnabled: () => playing,
+    allMuted: () => allMuted,
+    setMuteAll,
     setSfx(on) {
       sfxOn = !!on;
       try { localStorage.setItem(SFX_KEY, sfxOn ? '1' : '0'); } catch (e) { /* ignore */ }
@@ -394,7 +491,7 @@
 
   /* resume across pages on first gesture if the user left it on */
   try {
-    if (localStorage.getItem(WANT_KEY) === '1') {
+    if (localStorage.getItem(WANT_KEY) === '1' && !allMuted) {
       const resume = e => {
         if (e.target && e.target.closest && e.target.closest('#cwSound')) {
           window.removeEventListener('pointerdown', resume);

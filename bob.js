@@ -80,8 +80,9 @@
   /* tiny Web Audio reactions, shared with the nav widget's sound engine */
   const AUDIO = window.CW_AUDIO || null;
   function sfx(name) { if (AUDIO && AUDIO.sfx) AUDIO.sfx(name); }
+  const soundOn = () => !AUDIO || (AUDIO.sfxEnabled() && !AUDIO.allMuted());
   function syncSfxUI() {
-    const on = !AUDIO || AUDIO.sfxEnabled();
+    const on = soundOn();
     sfxToggle.textContent = on ? '🎵' : '🔇';
     const label = on ? 'Reaction sounds on' : 'Reaction sounds off';
     sfxToggle.title = label;
@@ -90,9 +91,18 @@
   }
   syncSfxUI();
   sfxToggle.addEventListener('click', () => {
-    if (AUDIO) AUDIO.setSfx(!AUDIO.sfxEnabled());
+    if (AUDIO && AUDIO.allMuted()) AUDIO.setMuteAll(false);
+    else if (AUDIO) AUDIO.setSfx(!AUDIO.sfxEnabled());
     syncSfxUI();
-    if (!AUDIO || AUDIO.sfxEnabled()) sfx('pop');
+    if (soundOn()) sfx('pop');
+  });
+  window.addEventListener('cwMuteAll', () => {
+    syncSfxUI();
+    if (AUDIO && AUDIO.allMuted() && synth) {
+      synth.cancel();
+      speechToken++;
+      if (root.dataset.state !== 'thinking') setState('idle');
+    }
   });
 
   let open = false;
@@ -422,6 +432,59 @@
     nudge(known ? `That goes to ${known.title || href} ↗` : `Opening ${label} ↗`, null, 2600);
   }, { passive: true });
 
+  /* ==========================================================
+     BUTTON INTENTS — Bob tells you what a click will actually do
+     ========================================================== */
+  const BTN_HINTS = {
+    cwSound: () => (window.CW_AUDIO && window.CW_AUDIO.allMuted())
+      ? 'Everything is muted — hit 🔊 first 🔇' : (window.CW_AUDIO && window.CW_AUDIO.ambientEnabled())
+        ? 'This fades out the music 🎵' : 'This starts the chill instrumental 🎶',
+    cwMuteAll: () => (window.CW_AUDIO && window.CW_AUDIO.allMuted())
+      ? 'This turns every sound back on 🔊' : 'This silences ALL music and sounds 🔇',
+    bobFab: () => 'Opens my chat — ask me anything 💬',
+    bobClose: () => 'Closes our chat 👋',
+    bobVoiceToggle: () => 'Toggles my spoken replies 🔊',
+    bobSfxToggle: () => 'Toggles my reaction sounds 🎵',
+    bobMic: () => 'Starts voice input 🎤',
+    navToggle: () => 'Opens or closes the menu ☰',
+    shuffleBtn: () => 'Shuffles all the project cards 🎲',
+    toTop: () => 'Scrolls back to the top ⬆️'
+  };
+
+  function buttonIntent(btn) {
+    if (BTN_HINTS[btn.id]) return BTN_HINTS[btn.id](btn);
+    if (btn.dataset.q) return `Asks me: “${cleanText(btn.dataset.q).slice(0, 44)}”`;
+    if (btn.dataset.goto) return `Jumps to the ${btn.dataset.goto} section ↗`;
+    if (btn.classList.contains('filter-btn')) {
+      const name = cleanText((btn.childNodes[0] || {}).textContent || btn.dataset.cat);
+      return `Filters projects to ${name} 🗂️`;
+    }
+    if (btn.hasAttribute('data-close') || /close/i.test(btn.getAttribute('aria-label') || '')) return 'Closes this preview ✕';
+    if (btn.classList.contains('btn-print') || /print/i.test(btn.textContent)) return 'Prints this resume 🖨️';
+    if (btn.classList.contains('mini-link') || btn.hasAttribute('data-preview')) return 'Opens a live website preview 🌐';
+    if (btn.classList.contains('bob-chip')) return `Asks me: “${cleanText(btn.textContent).slice(0, 44)}”`;
+    if (btn.getAttribute('type') === 'submit' || btn.closest('form')) return 'Sends your message ↗';
+    const label = cleanText(btn.getAttribute('aria-label') || btn.title || btn.textContent).slice(0, 44);
+    return label ? `Clicking “${label}” runs that action 👀` : 'Clicking this does something useful 👀';
+  }
+
+  let lastButtonHint = 0;
+  function hintButton(btn) {
+    const now = Date.now();
+    if (now - lastButtonHint < 6000) return;
+    lastButtonHint = now;
+    react('curious', 850);
+    nudge(buttonIntent(btn), null, 3000);
+  }
+  document.addEventListener('pointerover', e => {
+    if (!e.target.closest) return;
+    const btn = e.target.closest('button');
+    if (btn) hintButton(btn);
+  }, { passive: true });
+  document.addEventListener('focusin', e => {
+    if (e.target && e.target.tagName === 'BUTTON') hintButton(e.target);
+  });
+
   /* typing — one curious peep when he notices the first character */
   input.addEventListener('input', () => {
     if (input.value.length === 1) react('curious', 800);
@@ -520,7 +583,7 @@
   /* ---------- voice ---------- */
   function speak(text) {
     const token = ++speechToken;
-    if (!voiceOn || !synth) { setState('idle'); return; }
+    if (!voiceOn || !synth || (AUDIO && AUDIO.allMuted())) { setState('idle'); return; }
     synth.cancel();
     setState('speaking');
     const clean = String(text)

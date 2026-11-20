@@ -54,6 +54,14 @@
 .cw-chip-sound.is-playing .cw-bars i:nth-child(4) { animation-delay: -.6s; }
 @keyframes cwBar { from { height: 3px; } to { height: 11px; } }
 
+/* global kill switch */
+.cw-chip-muteall { font-size: 13px; line-height: 1; }
+.cw-chip.is-all-muted .cw-chip-sound { opacity: .45; border-color: rgba(238, 39, 55, .32); color: #ff9aa2; }
+.cw-chip.is-all-muted .cw-chip-muteall {
+  opacity: 1; color: #ff9aa2; border-color: rgba(238, 39, 55, .55);
+  box-shadow: 0 0 0 3px rgba(238, 39, 55, .1);
+}
+
 @media (max-width: 520px) {
   .cw-chip { height: 30px; gap: 6px; padding: 0 6px 0 8px; }
   .cw-chip-icon { width: 15px; height: 15px; }

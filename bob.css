@@ -1,5 +1,5 @@
 /* ============================================================
-   BOB — floating chat + voice assistant styling
+   BOB — floating cute chat + voice assistant styling
    ============================================================ */
 .bob-root {
   --bob-red: #ee2737;
@@ -18,9 +18,9 @@
 .bob-root *, .bob-root *::before, .bob-root *::after { box-sizing: border-box; }
 .bob-root button, .bob-root input { font: inherit; }
 
-/* ---------- floating robot ---------- */
+/* ---------- floating cute bot ---------- */
 .bob-tooltip {
-  position: fixed; right: 116px; bottom: 50px; pointer-events: none;
+  position: fixed; right: 112px; bottom: 48px; pointer-events: none;
   padding: 8px 13px; border-radius: 999px; white-space: nowrap;
   background: var(--bob-bg); border: 1px solid var(--bob-line);
   color: var(--bob-text); font-size: .72rem; letter-spacing: .02em;
@@ -37,166 +37,169 @@
 .bob-fab {
   --eye-x: 0px; --eye-y: 0px; --tilt: 0deg;
   position: fixed; right: 18px; bottom: 14px; pointer-events: auto;
-  width: 86px; height: 98px; padding: 0; border: 0; background: transparent;
-  cursor: pointer; filter: drop-shadow(0 14px 22px rgba(0, 0, 0, .55));
+  width: 92px; height: 104px; padding: 0; border: 0; background: transparent;
+  cursor: pointer; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .4));
   transition: transform .35s cubic-bezier(.16, 1, .3, 1);
 }
-.bob-fab:hover { transform: translateY(-4px) scale(1.04); }
+.bob-fab:hover { transform: translateY(-3px) scale(1.04); }
 .bob-fab-ring {
-  position: absolute; left: 50%; bottom: 8px; width: 66px; height: 16px; margin-left: -33px;
-  border-radius: 50%; border: 1px solid rgba(238, 39, 55, .5);
+  position: absolute; left: 50%; bottom: 6px; width: 60px; height: 14px; margin-left: -30px;
+  border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 140, 160, .3), transparent 70%);
   animation: bobRing 2.6s ease-out infinite;
 }
-.bob-bot { position: absolute; inset: 0; animation: bobFloat 3.4s ease-in-out infinite; }
+.bob-bot { position: absolute; inset: 0; animation: bobFloat 3.2s ease-in-out infinite; }
 
 /* antenna */
 .bob-antenna {
-  position: absolute; top: 2px; left: 50%; width: 2px; height: 12px; margin-left: -1px;
-  background: linear-gradient(#ff7b88, #8a0d22); border-radius: 2px;
+  position: absolute; top: 1px; left: 50%; width: 2px; height: 12px; margin-left: -1px;
+  background: #f0a9b5; border-radius: 2px;
 }
 .bob-antenna i {
-  position: absolute; top: -4px; left: 50%; width: 8px; height: 8px; margin-left: -4px;
-  border-radius: 50%; background: #ff8a97;
-  box-shadow: 0 0 12px 3px rgba(255, 90, 110, .75);
-  animation: bobAntenna 1.8s ease-in-out infinite;
+  position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; margin-left: -5px;
+  border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #ff9fb0 45%, #f4677d);
+  box-shadow: 0 0 10px 2px rgba(255, 140, 160, .7);
+  animation: bobAntenna 2.2s ease-in-out infinite;
 }
 
-/* head + face */
-.bob-head {
-  position: absolute; top: 13px; left: 50%; width: 54px; height: 46px; margin-left: -27px;
-  border-radius: 16px 16px 14px 14px;
-  background: linear-gradient(150deg, #3a3344, #1a1622 70%);
-  border: 1px solid rgba(255, 255, 255, .18);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 -6px 12px rgba(0, 0, 0, .45), 0 6px 14px rgba(0, 0, 0, .45);
+/* head (unique class — .bob-head belongs to the chat panel header) */
+.bob-rhead {
+  position: absolute; top: 12px; left: 50%; width: 58px; height: 50px; margin-left: -29px;
+  border-radius: 21px;
+  background: linear-gradient(160deg, #fffaf6 0%, #ffe9df 65%, #ffd8cb 100%);
+  border: 1px solid rgba(255, 255, 255, .9);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .9), inset 0 -3px 7px rgba(214, 140, 120, .18), 0 6px 14px rgba(90, 50, 45, .2);
   transform: rotate(var(--tilt)); transition: transform .22s;
 }
-.bob-head::before {
-  content: ''; position: absolute; top: -3px; left: 12px; right: 12px; height: 4px;
-  border-radius: 4px; background: rgba(255, 255, 255, .08);
+.bob-rhead::before {
+  content: ''; position: absolute; top: -4px; left: 16px; right: 16px; height: 5px;
+  border-radius: 5px; background: #ffe0d2;
 }
 .bob-face {
-  position: absolute; inset: 5px 5px 4px; border-radius: 11px; overflow: hidden;
-  background: radial-gradient(60px 40px at 50% 30%, #252031, #0d0b13 75%);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+  position: absolute; inset: 5px 5px 4px; border-radius: 16px;
+  background: linear-gradient(180deg, #fffdfb, #fff6f0);
+  box-shadow: inset 0 0 0 1px rgba(230, 170, 155, .18);
 }
+
+/* big sparkly eyes */
 .bob-eye {
-  position: absolute; top: 11px; width: 14px; height: 14px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff 0 10%, #ff9faa 18%, var(--bob-red) 60%, #7d0a22 100%);
-  box-shadow: 0 0 12px 2px rgba(238, 39, 55, .5);
-  transition: height .16s, width .16s, top .16s, border-radius .16s, box-shadow .25s;
+  position: absolute; top: 9px; width: 16px; height: 17px; border-radius: 50%;
+  background: #fff; border: 1.5px solid #4a3540; overflow: hidden;
+  box-shadow: inset 0 -1px 2px rgba(74, 53, 64, .1);
+  transition: height .16s, width .16s, top .16s, border-radius .16s, background .2s;
 }
 .bob-eye--l { left: 9px; }
 .bob-eye--r { right: 9px; }
 .bob-eye i {
-  position: absolute; top: 3px; left: 4px; width: 4px; height: 4px; border-radius: 50%;
-  background: #fff; opacity: .9;
+  position: absolute; top: 5px; left: 5px; width: 7px; height: 7px; border-radius: 50%;
+  background: #4a3540;
   transform: translate(var(--eye-x), var(--eye-y)); transition: transform .12s;
 }
+.bob-eye i::after {
+  content: ''; position: absolute; top: 1px; left: 1px; width: 2.5px; height: 2.5px;
+  border-radius: 50%; background: #fff;
+}
 .bob-brow {
-  position: absolute; top: 5px; width: 12px; height: 2px; border-radius: 2px;
-  background: rgba(255, 255, 255, .22); transition: transform .25s;
+  position: absolute; top: 3px; width: 9px; height: 2px; border-radius: 2px;
+  background: #e7a9b6; opacity: .8; transition: transform .25s;
 }
-.bob-brow--l { left: 10px; }
-.bob-brow--r { right: 10px; }
+.bob-brow--l { left: 11px; }
+.bob-brow--r { right: 11px; }
 .bob-cheek {
-  position: absolute; top: 24px; width: 6px; height: 3px; border-radius: 50%;
-  background: rgba(255, 90, 110, .35); filter: blur(1px);
+  position: absolute; top: 25px; width: 9px; height: 5px; border-radius: 50%;
+  background: rgba(255, 150, 175, .5); filter: blur(.5px);
 }
-.bob-cheek--l { left: 5px; }
-.bob-cheek--r { right: 5px; }
+.bob-cheek--l { left: 3px; }
+.bob-cheek--r { right: 3px; }
 .bob-mouth {
-  position: absolute; bottom: 5px; left: 50%; width: 20px; height: 8px; margin-left: -10px;
-  display: flex; align-items: flex-end; justify-content: center; gap: 2px;
+  position: absolute; bottom: 6px; left: 50%; width: 12px; height: 6px; margin-left: -6px;
+  border-bottom: 2px solid #d9667c; border-radius: 0 0 12px 12px;
+  transition: width .2s, height .2s, margin .2s, border .2s, transform .2s, background .2s;
 }
-.bob-mouth::after {
-  content: ''; position: absolute; bottom: 0; left: 1px; width: 18px; height: 8px;
-  border-bottom: 2px solid #ff8a97; border-radius: 0 0 10px 10px; transition: .25s;
-}
-.bob-mouth i { width: 2px; height: 0; border-radius: 2px; background: #ff8a97; opacity: 0; }
 
-/* body + arms */
+/* chubby body */
 .bob-body {
-  position: absolute; bottom: 14px; left: 50%; width: 38px; height: 28px; margin-left: -19px;
-  border-radius: 10px 10px 14px 14px;
-  background: linear-gradient(160deg, #363040, #15121d);
-  border: 1px solid rgba(255, 255, 255, .15);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 8px 16px rgba(0, 0, 0, .5);
+  position: absolute; bottom: 12px; left: 50%; width: 36px; height: 26px; margin-left: -18px;
+  border-radius: 13px 13px 15px 15px;
+  background: linear-gradient(160deg, #fff8f3, #ffdfd1);
+  border: 1px solid rgba(255, 255, 255, .85);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .9), 0 7px 14px rgba(90, 50, 45, .22);
 }
 .bob-body::before {
-  content: ''; position: absolute; top: -5px; left: 10px; right: 10px; height: 5px;
-  border-radius: 3px; background: #262031; border: 1px solid rgba(255, 255, 255, .1);
+  content: ''; position: absolute; top: -4px; left: 11px; right: 11px; height: 4px;
+  border-radius: 4px; background: #ffd0c0;
 }
-.bob-core {
-  position: absolute; top: 8px; left: 50%; width: 14px; height: 14px; margin-left: -7px;
-  border-radius: 50%; background: #0c0a12; border: 1px solid rgba(255, 255, 255, .14);
-  display: grid; place-items: center;
+.bob-belly {
+  position: absolute; top: 8px; left: 50%; width: 18px; height: 10px; margin-left: -9px;
+  border-radius: 6px; background: #ffe9e0;
+  display: flex; align-items: center; justify-content: center; gap: 3px;
 }
-.bob-core i {
-  width: 6px; height: 6px; border-radius: 50%; background: #5dffa4;
-  box-shadow: 0 0 10px #5dffa4; animation: bobCorePulse 2s ease-in-out infinite;
+.bob-belly i {
+  width: 4px; height: 4px; border-radius: 50%; background: #ff9fb0;
+  animation: bobCorePulse 2s ease-in-out infinite;
 }
+.bob-belly i:nth-child(2) { animation-delay: .25s; }
 .bob-arm {
-  position: absolute; top: 6px; width: 7px; height: 22px; border-radius: 5px;
-  background: linear-gradient(#3b3446, #1a1623); border: 1px solid rgba(255, 255, 255, .1);
+  position: absolute; top: 7px; width: 9px; height: 13px; border-radius: 7px;
+  background: linear-gradient(#fff6ef, #ffd7c8); border: 1px solid rgba(255, 255, 255, .7);
   transform-origin: top center; transition: transform .3s;
 }
-.bob-arm--l { left: -8px; transform: rotate(10deg); }
-.bob-arm--r { right: -8px; transform: rotate(-10deg); }
+.bob-arm--l { left: -6px; transform: rotate(14deg); }
+.bob-arm--r { right: -6px; transform: rotate(-14deg); }
 .bob-shadow {
-  position: absolute; bottom: 8px; left: 50%; width: 54px; height: 9px; margin-left: -27px;
-  border-radius: 50%; background: radial-gradient(ellipse, rgba(0, 0, 0, .55), transparent 70%);
+  position: absolute; bottom: 8px; left: 50%; width: 52px; height: 8px; margin-left: -26px;
+  border-radius: 50%; background: radial-gradient(ellipse, rgba(90, 50, 45, .28), transparent 70%);
 }
 
 /* hover first so behaviour states below always win */
-.bob-fab:hover .bob-eye { width: 16px; height: 16px; }
 .bob-fab:hover .bob-brow--l { transform: translateY(-2px); }
 .bob-fab:hover .bob-brow--r { transform: translateY(-2px); }
 
 /* ---------- behaviour states ---------- */
 .bob-root[data-state="listening"] .bob-eye {
-  width: 16px; height: 16px;
-  box-shadow: 0 0 0 5px rgba(238, 39, 55, .12), 0 0 16px 4px rgba(238, 39, 55, .55);
+  width: 18px; height: 19px; top: 8px; border-color: #f4677d;
+  box-shadow: 0 0 0 3px rgba(255, 160, 180, .25);
 }
-.bob-root[data-state="listening"] .bob-mouth::after {
-  width: 9px; height: 9px; left: 5px; border: 2px solid #ff8a97; border-radius: 50%;
+.bob-root[data-state="listening"] .bob-mouth {
+  width: 7px; height: 7px; margin-left: -3.5px; border: 2px solid #d9667c; border-radius: 50%;
 }
-.bob-root[data-state="listening"] .bob-arm { transform: rotate(-35deg); }
-.bob-root[data-state="listening"] .bob-arm--r { transform: rotate(35deg); }
-.bob-root[data-state="listening"] .bob-core i { background: #ff8a97; box-shadow: 0 0 12px #ff5f70; animation-duration: .7s; }
+.bob-root[data-state="listening"] .bob-arm--l { transform: rotate(-25deg); }
+.bob-root[data-state="listening"] .bob-arm--r { transform: rotate(25deg); }
+.bob-root[data-state="listening"] .bob-belly i { background: #ff9fb0; animation-duration: .7s; }
+.bob-root[data-state="listening"] .bob-bot { animation-duration: 1.2s; }
 
 .bob-root[data-state="thinking"] .bob-eye {
-  height: 4px; top: 15px; border-radius: 4px; background: #ff8a97;
-  box-shadow: 0 0 10px rgba(255, 138, 151, .7);
+  height: 4px; top: 16px; border-radius: 4px; background: #4a3540;
 }
 .bob-root[data-state="thinking"] .bob-eye i { opacity: 0; }
-.bob-root[data-state="thinking"] .bob-brow--l { transform: translateY(2px) rotate(-8deg); }
-.bob-root[data-state="thinking"] .bob-brow--r { transform: translateY(2px) rotate(8deg); }
-.bob-root[data-state="thinking"] .bob-mouth::after { opacity: 0; }
-.bob-root[data-state="thinking"] .bob-mouth i { opacity: 1; height: 3px; animation: bobThink .9s ease-in-out infinite alternate; }
-.bob-root[data-state="thinking"] .bob-core i { background: #ffd36e; box-shadow: 0 0 12px #ffd36e; animation-duration: .5s; }
+.bob-root[data-state="thinking"] .bob-brow--l { transform: translateY(2px) rotate(10deg); }
+.bob-root[data-state="thinking"] .bob-brow--r { transform: translateY(2px) rotate(-10deg); }
+.bob-root[data-state="thinking"] .bob-mouth { width: 8px; margin-left: -4px; transform: rotate(-6deg); }
+.bob-root[data-state="thinking"] .bob-rhead { animation: bobThinkHead 1.8s ease-in-out infinite; }
+.bob-root[data-state="thinking"] .bob-belly i { background: #ffd36e; animation-duration: .5s; }
 
-.bob-root[data-state="speaking"] .bob-mouth::after { opacity: 0; }
-.bob-root[data-state="speaking"] .bob-mouth i { opacity: 1; animation: bobTalk .42s ease-in-out infinite alternate; }
-.bob-root[data-state="speaking"] .bob-mouth i:nth-child(2) { animation-delay: .10s; }
-.bob-root[data-state="speaking"] .bob-mouth i:nth-child(3) { animation-delay: .22s; }
-.bob-root[data-state="speaking"] .bob-mouth i:nth-child(4) { animation-delay: .32s; }
-.bob-root[data-state="speaking"] .bob-eye { box-shadow: 0 0 16px 3px rgba(238, 39, 55, .55); }
-.bob-root[data-state="speaking"] .bob-core i { animation-duration: .4s; }
-.bob-root[data-state="speaking"] .bob-head { animation: bobNod .6s ease-in-out infinite; }
+.bob-root[data-state="speaking"] .bob-mouth {
+  width: 9px; height: 8px; margin-left: -4.5px;
+  border: 0; background: #d9667c; border-radius: 0 0 8px 8px;
+  animation: bobTalk .36s ease-in-out infinite alternate;
+}
+.bob-root[data-state="speaking"] .bob-belly i { animation-duration: .4s; }
+.bob-root[data-state="speaking"] .bob-rhead { animation: bobNod .7s ease-in-out infinite; }
 
-.bob-fab.is-blinking .bob-eye { height: 2px; top: 17px; border-radius: 2px; background: #ff8a97; }
+.bob-fab.is-blinking .bob-eye { height: 2px; top: 16px; border-radius: 2px; background: #4a3540; }
 .bob-fab.is-blinking .bob-eye i { opacity: 0; }
-.bob-fab.is-waving .bob-arm--r { animation: bobWave .28s ease-in-out 4 alternate; }
-.bob-fab.is-waving .bob-eye { border-radius: 50% 50% 40% 40%; }
+.bob-fab.is-waving .bob-arm--r { animation: bobWave .26s ease-in-out 4 alternate; }
+.bob-fab.is-waving .bob-rhead { animation: bobHop .3s ease-in-out 3; }
+.bob-fab.is-waving .bob-eye { border-radius: 50% 50% 45% 45%; }
 
-@keyframes bobFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-@keyframes bobRing { 0% { transform: scaleX(.8); opacity: .65; } 100% { transform: scaleX(1.5); opacity: 0; } }
-@keyframes bobAntenna { 0%, 92%, 100% { opacity: 1; transform: scale(1); } 95% { opacity: .35; transform: scale(.6); } }
-@keyframes bobCorePulse { 0%, 100% { opacity: .65; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
-@keyframes bobTalk { from { height: 2px; } to { height: 8px; } }
-@keyframes bobThink { from { transform: translateX(-2px); opacity: .4; } to { transform: translateX(2px); opacity: 1; } }
-@keyframes bobNod { 0%, 100% { transform: rotate(var(--tilt)) translateY(0); } 50% { transform: rotate(var(--tilt)) translateY(1.5px); } }
-@keyframes bobWave { from { transform: rotate(-105deg); } to { transform: rotate(-150deg); } }
+@keyframes bobFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes bobRing { 0% { transform: scale(.85); opacity: .7; } 100% { transform: scale(1.45); opacity: 0; } }
+@keyframes bobAntenna { 0%, 90%, 100% { transform: scale(1); opacity: 1; } 94% { transform: scale(.7); opacity: .55; } }
+@keyframes bobCorePulse { 0%, 100% { transform: scale(.8); opacity: .7; } 50% { transform: scale(1.2); opacity: 1; } }
+@keyframes bobTalk { from { height: 3px; } to { height: 10px; } }
+@keyframes bobThinkHead { 0%, 100% { transform: rotate(var(--tilt)); } 50% { transform: rotate(calc(var(--tilt) + 7deg)); } }
+@keyframes bobNod { 0%, 100% { transform: rotate(var(--tilt)) translateY(0); } 50% { transform: rotate(var(--tilt)) translateY(2px); } }
+@keyframes bobWave { from { transform: rotate(-30deg); } to { transform: rotate(-125deg); } }
+@keyframes bobHop { 0%, 100% { transform: translateY(0) rotate(var(--tilt)); } 50% { transform: translateY(-6px) rotate(var(--tilt)); } }
 
 /* ---------- panel ---------- */
 .bob-panel {
@@ -322,9 +325,9 @@
 
 /* ---------- responsive ---------- */
 @media (max-width: 480px) {
-  .bob-fab { right: 10px; bottom: 10px; transform-origin: bottom right; }
-  .bob-panel { right: 10px; left: 10px; bottom: 114px; width: auto; height: min(70vh, 540px); }
-  .bob-tooltip { right: 104px; bottom: 44px; }
+  .bob-fab { right: 8px; bottom: 8px; transform-origin: bottom right; }
+  .bob-panel { right: 10px; left: 10px; bottom: 116px; width: auto; height: min(70vh, 540px); }
+  .bob-tooltip { right: 108px; bottom: 42px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

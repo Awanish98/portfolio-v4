@@ -419,58 +419,84 @@ function initProgress() {
 function initCursor() {
   if (reduceMotion || window.matchMedia('(pointer: coarse)').matches) return;
   const dot = $('.cursor-dot'), ring = $('.cursor-ring');
-  let mx = -100, my = -100, rx = -100, ry = -100, active = false;
+  if (!dot || !ring) return;
+  let mx = -100, my = -100, rx = -100, ry = -100, raf = null, active = false;
+
+  /* The loop stops itself once the ring has caught up — no permanent rAF. */
+  const loop = () => {
+    raf = null;
+    rx += (mx - rx) * .16; ry += (my - ry) * .16;
+    dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
+    ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%)`;
+    if (Math.abs(mx - rx) > .15 || Math.abs(my - ry) > .15) raf = requestAnimationFrame(loop);
+  };
+  const kick = () => { if (raf === null) raf = requestAnimationFrame(loop); };
+
   document.addEventListener('mousemove', e => {
     mx = e.clientX; my = e.clientY;
     if (!active) { active = true; document.body.classList.add('cursor-active'); }
-  });
+    kick();
+  }, { passive: true });
   document.addEventListener('mouseover', e => {
     const hit = e.target.closest('a, button, [role="button"], .fcard, .bcard');
     document.body.classList.toggle('cursor-hover', !!hit);
-  });
+  }, { passive: true });
   document.addEventListener('mouseleave', () => document.body.classList.remove('cursor-active'));
-  const loop = () => {
-    rx += (mx - rx) * .16; ry += (my - ry) * .16;
-    dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
-    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
-    requestAnimationFrame(loop);
-  };
-  requestAnimationFrame(loop);
 }
 
 function initStars() {
   const canvas = $('#starfield');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  let w = 0, h = 0, stars = [], raf;
+  let w = 0, h = 0, stars = [], raf = null, last = 0, onScreen = true;
+
   const resize = () => {
-    w = canvas.width = window.innerWidth;
+    w = canvas.width = Math.min(window.innerWidth, 1920);
     h = canvas.height = Math.max(window.innerHeight, 700);
-    const count = Math.min(150, Math.floor(w / 9));
+    /* fewer particles + 30fps cap = same look, a fraction of the CPU */
+    const count = Math.min(90, Math.floor(w / 14));
     stars = Array.from({ length: count }, () => ({
       x: Math.random() * w, y: Math.random() * h,
       r: Math.random() * 1.4 + .25,
       vy: Math.random() * .22 + .04,
       a: Math.random() * .6 + .15,
       tw: Math.random() * .02 + .006,
-      red: Math.random() > .78
+      red: Math.random() > .82
     }));
   };
-  const draw = () => {
+
+  const render = () => {
     ctx.clearRect(0, 0, w, h);
     stars.forEach(s => {
       s.y += s.vy; if (s.y > h) { s.y = 0; s.x = Math.random() * w; }
       s.a += s.tw; if (s.a > .85 || s.a < .1) s.tw *= -1;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = s.red ? `rgba(238,39,56,${s.a})` : `rgba(255,255,255,${s.a * .7})`;
+      ctx.fillStyle = s.red ? `rgba(67,59,255,${s.a})` : `rgba(251,251,254,${s.a * .7})`;
       ctx.fill();
     });
-    raf = requestAnimationFrame(draw);
   };
+
+  const tick = ts => {
+    raf = requestAnimationFrame(tick);
+    if (ts - last < 32) return;          // ~30fps is plenty for drifting stars
+    last = ts;
+    render();
+  };
+  const play = () => {
+    if (raf === null && !reduceMotion && onScreen && !document.hidden) raf = requestAnimationFrame(tick);
+  };
+  const stop = () => { if (raf !== null) { cancelAnimationFrame(raf); raf = null; } };
+
   resize();
-  window.addEventListener('resize', resize);
-  if (reduceMotion) { draw(); cancelAnimationFrame(raf); }
-  else draw();
+  window.addEventListener('resize', resize, { passive: true });
+
+  if (reduceMotion) { render(); return; }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; onScreen ? play() : stop(); },
+      { threshold: 0 }).observe(canvas);
+  } else play();
+  document.addEventListener('visibilitychange', () => document.hidden ? stop() : play());
 }
 
 function scalePreviews() {  $$('.bcard-preview').forEach(p => {
@@ -612,12 +638,14 @@ function initPortrait() {
 function initMagnetic() {
   if (reduceMotion) return;
   $$('.magnetic').forEach(el => {
+    let rect = null, measured = 0;
     el.addEventListener('mousemove', e => {
-      const r = el.getBoundingClientRect();
-      const x = (e.clientX - r.left - r.width / 2) * .18;
-      const y = (e.clientY - r.top - r.height / 2) * .26;
-      el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
-    });
+      const now = performance.now();
+      if (!rect || now - measured > 120) { rect = el.getBoundingClientRect(); measured = now; }
+      const x = (e.clientX - rect.left - rect.width / 2) * .18;
+      const y = (e.clientY - rect.top - rect.height / 2) * .26;
+      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+    }, { passive: true });
     el.addEventListener('mouseleave', () => { el.style.transform = ''; });
   });
 }
@@ -625,13 +653,15 @@ function initMagnetic() {
 function initTilt() {
   if (reduceMotion || window.matchMedia('(pointer: coarse)').matches) return;
   $$('.fcard, .bcard, .proj-card').forEach(card => {
+    let rect = null, measured = 0;
     card.addEventListener('mousemove', e => {
-      const r = card.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - .5;
-      const y = (e.clientY - r.top) / r.height - .5;
+      const now = performance.now();
+      if (!rect || now - measured > 120) { rect = card.getBoundingClientRect(); measured = now; }
+      const x = (e.clientX - rect.left) / rect.width - .5;
+      const y = (e.clientY - rect.top) / rect.height - .5;
       card.style.setProperty('--rx', `${(-y * 7).toFixed(2)}deg`);
       card.style.setProperty('--ry', `${(x * 7).toFixed(2)}deg`);
-    });
+    }, { passive: true });
     card.addEventListener('mouseleave', () => {
       card.style.setProperty('--rx', '0deg');
       card.style.setProperty('--ry', '0deg');

@@ -137,10 +137,13 @@
   }
   scheduleBlink();
 
-  /* eyes follow the cursor while Bob is idle */
+  /* eyes follow the cursor while Bob is idle — cached rect, no layout thrash */
+  let eyeRect = null, eyeMeasured = 0;
   document.addEventListener('mousemove', e => {
     if (open || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const r = fab.getBoundingClientRect();
+    const now = performance.now();
+    if (!eyeRect || now - eyeMeasured > 120) { eyeRect = fab.getBoundingClientRect(); eyeMeasured = now; }
+    const r = eyeRect;
     const dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / 260));
     const dy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / 260));
     fab.style.setProperty('--eye-x', (dx * 3.2).toFixed(1) + 'px');

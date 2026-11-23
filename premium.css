@@ -1,0 +1,361 @@
+/* ============================================================
+   PREMIUM LAYER — loaded last on every page.
+   Palette: Realtime Colors 050315 / fbfbfe / 2f27ce / dedcff / 433bff
+   Motion: motion-primitives + Magic UI patterns, ported to vanilla CSS.
+   Performance: removes the expensive blur/composite work that caused lag.
+   ============================================================ */
+
+/* ---------------------------------------------------------------
+   1. TOKENS
+   --------------------------------------------------------------- */
+:root {
+  --bg: #050315;
+  --bg-soft: #0a0820;
+  --surface: rgba(67, 59, 255, .055);
+  --surface-2: rgba(67, 59, 255, .11);
+  --line: rgba(222, 220, 255, .15);
+  --line-soft: rgba(222, 220, 255, .08);
+  --text: #fbfbfe;
+  --muted: #b9b6d8;
+  --dim: #9693bd;
+
+  /* legacy names kept so existing rules recolor without edits */
+  --red: #433bff;
+  --red-2: #2f27ce;
+  --crimson: #2f27ce;
+  --blue: #8f8bff;
+  --green: #4ade80;
+  --amber: #ffc46b;
+
+  --accent: #433bff;
+  --accent-deep: #2f27ce;
+  --lavender: #dedcff;
+  --glass-hi: rgba(251, 251, 254, .16);
+
+  --flow: linear-gradient(100deg,
+    #2f27ce 0%, #433bff 26%, #dedcff 48%,
+    #433bff 70%, #2f27ce 100%);
+
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ring: 0 0 0 3px rgba(67, 59, 255, .35);
+}
+
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ---------------------------------------------------------------
+   2. PERFORMANCE — kill the lag sources
+   --------------------------------------------------------------- */
+
+/* Fullscreen grain with mix-blend-mode forces a whole-viewport composite
+   on every frame. Keep the texture, drop the blend. */
+.grain { mix-blend-mode: normal !important; opacity: .026 !important; }
+
+/* backdrop-filter over scrolling content is the #1 scroll-jank source.
+   Use near-opaque surfaces with a hairline border instead — same look, cheap. */
+.nav.scrolled,
+.nav-cta,
+.hero-title em,
+.float-badge,
+.preview-tag,
+.expand-hint,
+.status-pill,
+.tl-count,
+.promo-live,
+.sh-window-bar,
+.sh-window-badge,
+.modal-bar,
+.demo-cat,
+.bcard-cat,
+.btn-ghost,
+.mini-link:not(.solid),
+.visit-link,
+.filter-btn:not(.active),
+.archive-jump a,
+.demo-expand,
+.cw-chip,
+.bob-panel,
+.bob-input,
+.nav-links {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.nav.scrolled { background: rgba(5, 3, 21, .93) !important; }
+.nav-links { background: rgba(5, 3, 21, .97) !important; }
+.bob-panel { background: rgba(9, 7, 28, .97) !important; }
+.cw-chip,
+.btn-ghost,
+.mini-link:not(.solid),
+.visit-link,
+.filter-btn:not(.active),
+.archive-jump a,
+.demo-expand { background: rgba(222, 220, 255, .055) !important; }
+.float-badge,
+.preview-tag,
+.expand-hint,
+.promo-live,
+.sh-window-badge { background: rgba(10, 8, 32, .9) !important; }
+
+/* Three 60px-blurred orbs + a 30px-blurred showcase orb were repainted on
+   every animation tick. Replace with one static, gradient-based SVG aurora. */
+.orb, .sh-orb, .portrait-aura::before { display: none !important; }
+.portrait-aura {
+  filter: none !important;
+  animation: none !important;
+  background: radial-gradient(circle at 50% 45%,
+    rgba(67, 59, 255, .28), rgba(47, 39, 206, .1) 45%, transparent 70%) !important;
+}
+
+.hero-media { position: absolute; }
+.hero-media::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: url('aurora.svg') center / cover no-repeat;
+  opacity: .92;
+}
+.sh-hero::before {
+  background: url('aurora.svg') center / cover no-repeat !important;
+  opacity: .78;
+}
+.sh-window::before {
+  filter: none !important;
+  animation: none !important;
+  background: radial-gradient(circle, rgba(67, 59, 255, .22), transparent 68%) !important;
+}
+
+/* will-change on 100+ cards reserves a GPU layer for each one. Only promote
+   the card actually under the cursor. */
+.fcard, .bcard, .proj-card, .lab-card, .spot, .magnetic { will-change: auto !important; }
+@media (hover: hover) and (pointer: fine) {
+  .fcard:hover, .bcard:hover, .proj-card:hover, .magnetic:hover { will-change: transform !important; }
+}
+
+/* Long grids: let the browser skip layout/paint for offscreen cards. */
+.proj-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
+}
+
+/* Pause indefinite decorative motion in sections that are offscreen.
+   premium.js toggles .motion-paused via IntersectionObserver. */
+.motion-paused *,
+.motion-paused *::before,
+.motion-paused *::after { animation-play-state: paused !important; }
+
+/* Keep continuous text-gradient shifts, but slow them down: fewer repaints. */
+.flow-text, .hero-title .outline, .section-title em, .contact-title em,
+.sh-title em, .loader-mark span, .hero-title em b, .eyebrow b,
+.section-kicker span, .fcard-num, .tl-date, .skill-group h4, .promo-tag,
+.spot-n, .demo-num, .stat strong, .ticker-track span, .ticker-track i,
+.section-kicker::after, .scroll-progress span, .stat::before,
+.fcard::after, .promo-feature::after, .sh-window-inner::after {
+  animation-duration: 18s !important;
+}
+.hero-title .line > span.outline { animation-duration: 1.05s, 18s !important; }
+.sh-title .shimmer { animation-duration: 16s !important; }
+
+/* ---------------------------------------------------------------
+   3. RECOLOR — hardcoded crimson → electric indigo
+   --------------------------------------------------------------- */
+.hero-veil {
+  background:
+    radial-gradient(900px 520px at 78% 34%, rgba(67, 59, 255, .26), transparent 65%),
+    radial-gradient(650px 480px at 12% 78%, rgba(47, 39, 206, .22), transparent 70%),
+    linear-gradient(180deg, rgba(5, 3, 21, .76) 0%, rgba(5, 3, 21, .42) 42%, var(--bg) 100%) !important;
+}
+.cursor-dot { background: var(--accent) !important; }
+.cursor-ring { border-color: rgba(67, 59, 255, .6) !important; }
+.cursor-hover .cursor-ring {
+  width: 52px; height: 52px;
+  background: rgba(67, 59, 255, .1) !important;
+  border-color: var(--lavender) !important;
+}
+.scroll-progress span {
+  background: linear-gradient(90deg, var(--accent-deep), var(--accent), var(--lavender)) !important;
+  box-shadow: 0 0 12px rgba(67, 59, 255, .7) !important;
+}
+.loader-line span { background: var(--accent) !important; }
+.brand-avatar::after { background: linear-gradient(135deg, rgba(67, 59, 255, .3), transparent 60%) !important; }
+.brand-mark { border-color: var(--accent) !important; box-shadow: 0 0 22px rgba(67, 59, 255, .3) !important; }
+
+.live-dot, .tiny-pulse, .sh-eyebrow i, .carousel-hint i {
+  background: var(--accent) !important;
+  box-shadow: 0 0 0 4px rgba(67, 59, 255, .18) !important;
+}
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(67, 59, 255, .2); } 50% { box-shadow: 0 0 0 9px rgba(67, 59, 255, 0); } }
+
+.hero-title .name-first {
+  background: linear-gradient(178deg, #ffffff 4%, #fbfbfe 48%, #dedcff 100%) !important;
+}
+.hero-title .outline {
+  background: linear-gradient(100deg, #dedcff 0%, #8f8bff 24%, #433bff 50%, #8f8bff 76%, #dedcff 100%) !important;
+  filter: drop-shadow(0 0 24px rgba(67, 59, 255, .42)) !important;
+}
+.hero-title em {
+  color: var(--lavender) !important;
+  border-color: rgba(67, 59, 255, .6) !important;
+  background: rgba(47, 39, 206, .16) !important;
+  box-shadow: inset 0 0 0 1px rgba(251, 251, 254, .06), 0 0 18px rgba(67, 59, 255, .2) !important;
+}
+.hero-title em b { color: var(--lavender) !important; }
+.hero-sub { color: #c9c6e6 !important; }
+
+.btn-primary,
+.mini-link.solid,
+.filter-btn.active {
+  background-color: var(--accent) !important;
+  border-color: rgba(222, 220, 255, .28) !important;
+  box-shadow: 0 10px 34px rgba(67, 59, 255, .38) !important;
+}
+.btn-primary:hover {
+  background-color: var(--accent-deep) !important;
+  box-shadow: 0 12px 42px rgba(67, 59, 255, .55) !important;
+}
+
+.nav-cta:hover { border-color: var(--accent) !important; background: rgba(67, 59, 255, .12) !important; }
+.hero-socials a:hover, .nav-link:hover, .visit-link:hover, .sh-micro a:hover { color: var(--lavender) !important; }
+
+.fcard::before { z-index: 1 !important; background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 0%), rgba(67, 59, 255, .22), transparent 62%) !important; }
+.fcard:hover { border-color: rgba(67, 59, 255, .6) !important; box-shadow: 0 24px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(67, 59, 255, .18) !important; }
+.proj-card:hover,
+.bcard:hover { border-color: rgba(67, 59, 255, .55) !important; box-shadow: 0 18px 44px rgba(0, 0, 0, .45), 0 0 30px rgba(67, 59, 255, .12) !important; }
+.proj-card .pc-group:hover { border-color: rgba(67, 59, 255, .6) !important; box-shadow: 0 0 18px rgba(67, 59, 255, .25) !important; }
+
+.portrait-orbit { border-color: rgba(67, 59, 255, .22) !important; border-top-color: var(--accent) !important; border-right-color: rgba(222, 220, 255, .5) !important; }
+.portrait-orbit.orbit-two { border-bottom-color: rgba(222, 220, 255, .45) !important; }
+.portrait-frame { border-color: rgba(222, 220, 255, .22) !important; background: #0a0820 !important; box-shadow: 0 30px 80px rgba(0, 0, 0, .65), inset 0 0 0 1px rgba(67, 59, 255, .2) !important; }
+.portrait-grain { background: linear-gradient(180deg, transparent 42%, rgba(5, 3, 21, .82) 100%) !important; }
+.portrait-shine { background: linear-gradient(90deg, transparent, rgba(222, 220, 255, .2), transparent) !important; }
+.portrait-scan { background: linear-gradient(180deg, transparent, rgba(67, 59, 255, .2), transparent) !important; }
+.float-badge strong { color: var(--lavender) !important; }
+.portrait-label span { color: var(--lavender) !important; }
+.stat::before { background: linear-gradient(var(--accent), transparent) !important; }
+
+.sh-title em { color: var(--lavender) !important; }
+.sh-title .shimmer { background: linear-gradient(100deg, #fbfbfe 10%, #dedcff 28%, var(--accent) 50%, #dedcff 72%, #fbfbfe 90%) !important; }
+.sh-window-ring { border-color: rgba(67, 59, 255, .22) !important; border-top-color: var(--accent) !important; }
+.sh-window-inner { background: #0a0820 !important; }
+.bob-panel { background-image: radial-gradient(420px 220px at 100% 0%, rgba(67, 59, 255, .18), transparent 65%) !important; }
+
+/* ---------------------------------------------------------------
+   4. MAGIC UI / MOTION-PRIMITIVES EFFECTS
+   --------------------------------------------------------------- */
+
+/* --- mouse-follow spotlight: a pre-baked gradient disc moved by transform.
+     No background-position repaint, no blur filter. --- */
+.pm-spot {
+  position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none;
+  width: 340px; height: 340px; border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(67, 59, 255, .24) 0%, rgba(222, 220, 255, .09) 38%, transparent 68%);
+  transform: translate3d(calc(var(--pm-x, 50%) - 170px), calc(var(--pm-y, 50%) - 170px), 0);
+  opacity: 0; transition: opacity .35s var(--ease-out);
+}
+.pm-host:hover > .pm-spot { opacity: 1; }
+/* overlays stay above card content by design (pointer-events:none, low alpha) —
+   do NOT force z-index/position on existing children: it would break layouts. */
+
+/* --- animated border beam on the featured card --- */
+@property --beam-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.pm-beam {
+  position: absolute; inset: 0; z-index: 3; border-radius: inherit; padding: 1px;
+  pointer-events: none; opacity: 0; transition: opacity .35s var(--ease-out);
+  background: conic-gradient(from var(--beam-angle),
+    transparent 0 68%, rgba(67, 59, 255, .25) 78%,
+    var(--accent) 86%, var(--lavender) 93%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.pm-host:hover > .pm-beam { opacity: 1; animation: pmBeam 3.2s linear infinite; }
+@keyframes pmBeam { to { --beam-angle: 360deg; } }
+
+/* --- tilt glare: uses the --rx/--ry vars already set by script.js --- */
+.pm-glare {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(calc(125deg + var(--ry, 0deg) * 2),
+    transparent 34%, rgba(222, 220, 255, .16) 48%, transparent 62%);
+  opacity: 0; transition: opacity .3s var(--ease-out);
+}
+.pm-host:hover > .pm-glare { opacity: 1; }
+
+/* --- sparkles around the hero portrait (Magic UI, CSS-only) --- */
+.pm-sparkles { position: absolute; inset: -12%; pointer-events: none; z-index: 1; }
+.pm-spark {
+  position: absolute; width: 9px; height: 9px;
+  background: var(--lavender);
+  clip-path: polygon(50% 0%, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0% 50%, 42% 42%);
+  opacity: 0;
+  animation: pmTwinkle var(--dur, 3s) ease-in-out var(--delay, 0s) infinite;
+}
+.pm-spark:nth-child(3n) { background: var(--accent); }
+.pm-spark:nth-child(4n) { width: 6px; height: 6px; }
+@keyframes pmTwinkle {
+  0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg) translateY(0); }
+  50% { opacity: .95; transform: scale(1) rotate(45deg) translateY(-6px); }
+}
+
+/* --- marquee: soft edge fade + pause on hover --- */
+.ticker, .carousel-track-wrap, .carousel-viewport, .reel-viewport {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+.ticker-track, .reel-track { will-change: transform; }
+.ticker:hover .ticker-track,
+.carousel:hover .carousel-track,
+.reel-viewport:hover .reel-track { animation-play-state: paused; }
+
+/* --- subtle dot-grid texture on dark sections --- */
+.section-alt::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .35;
+  background-image: radial-gradient(rgba(222, 220, 255, .12) .8px, transparent .8px);
+  background-size: 22px 22px;
+}
+.section-alt > * { position: relative; }
+
+/* --- press/tactile feedback --- */
+.btn:active, .nav-cta:active, .filter-btn:active, .social-chip:active {
+  transform: scale(.96);
+}
+.nav-link, .social-chip, .filter-btn, .mini-link, .demo-expand { min-height: 40px; display: inline-flex; align-items: center; }
+
+/* ---------------------------------------------------------------
+   5. TYPOGRAPHY / POLISH
+   --------------------------------------------------------------- */
+h1, h2, h3, .hero-title, .section-title, .sh-title, .contact-title { text-wrap: balance; }
+.hero-sub, .section-sub, .sh-sub, .fcard p, .proj-card p { text-wrap: pretty; }
+.stat strong, [data-count], .tl-date, .cw-chip-temp, .bob-msg time { font-variant-numeric: tabular-nums; }
+
+img { outline: 1px solid rgba(251, 251, 254, .07); outline-offset: -1px; }
+
+:focus-visible {
+  outline: 2px solid var(--lavender);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Reveal stays transform+opacity only — no blur animation (cheap + smooth). */
+.reveal { transition: opacity .7s var(--ease-out), transform .7s var(--ease-out); }
+
+/* Card entrance uses `translate`, independent of the `transform` used by
+   hover tilt — so the two animations never fight each other. */
+.pm-rise {
+  opacity: 0;
+  translate: 0 20px;
+  transition: opacity .7s var(--ease-out), translate .7s var(--ease-out);
+}
+.pm-rise.pm-in { opacity: 1; translate: 0 0; }
+
+/* ---------------------------------------------------------------
+   6. REDUCED MOTION — respect the user, keep the design
+   --------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .pm-spot, .pm-glare, .pm-beam { display: none !important; }
+  .motion-paused * { animation-play-state: paused !important; }
+}

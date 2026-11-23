@@ -18,6 +18,12 @@ Connect the `portfolio-v4` GitHub repo to Netlify (recommended) so the serverles
 
 Build settings: leave **build command** empty, **publish directory** `.` (root). `netlify.toml` already points Functions to `netlify/functions`.
 
+### "Powered by Netlify" badge
+
+New public projects created on a Free plan show a Netlify badge in the bottom-right corner. The reliable fix is the official per-project setting:
+
+**Netlify UI → your project → Project configuration → General → Powered by Netlify badge → Off → Save.** It applies on the next request; no redeploy needed. If the setting is locked on your plan, the site also ships a defensive fallback: `responsive.css` hides every known badge shell and `premium.js` removes any badge iframe injected later. That fallback is best-effort — Netlify can change its injection markup at any time, so prefer the dashboard toggle.
+
 ## Bob — the assistant
 
 Bob is the floating chat + voice assistant on every page.

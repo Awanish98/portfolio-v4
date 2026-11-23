@@ -282,33 +282,39 @@ function initCommon() {
 
   if (!reduceMotion && !window.matchMedia('(pointer: coarse)').matches) {
     const dot = $('.cursor-dot'), ring = $('.cursor-ring');
-    let mx = -100, my = -100, rx = -100, ry = -100, active = false;
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      if (!active) { active = true; document.body.classList.add('cursor-active'); }
-    });
-    document.addEventListener('mouseover', e => {
-      document.body.classList.toggle('cursor-hover', !!e.target.closest('a, button, [role="button"], .proj-card, .cat-card'));
-    });
-    document.addEventListener('mouseleave', () => document.body.classList.remove('cursor-active'));
-    const loop = () => {
-      rx += (mx - rx) * .16; ry += (my - ry) * .16;
-      dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
-      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
-      requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
+    if (dot && ring) {
+      let mx = -100, my = -100, rx = -100, ry = -100, raf = null, active = false;
+      const loop = () => {
+        raf = null;
+        rx += (mx - rx) * .16; ry += (my - ry) * .16;
+        dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
+        ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%)`;
+        if (Math.abs(mx - rx) > .15 || Math.abs(my - ry) > .15) raf = requestAnimationFrame(loop);
+      };
+      const kick = () => { if (raf === null) raf = requestAnimationFrame(loop); };
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        if (!active) { active = true; document.body.classList.add('cursor-active'); }
+        kick();
+      }, { passive: true });
+      document.addEventListener('mouseover', e => {
+        document.body.classList.toggle('cursor-hover', !!e.target.closest('a, button, [role="button"], .proj-card, .cat-card'));
+      }, { passive: true });
+      document.addEventListener('mouseleave', () => document.body.classList.remove('cursor-active'));
+    }
   }
 
   if (!reduceMotion && !window.matchMedia('(pointer: coarse)').matches) {
     $$('.proj-card, .cat-card').forEach(card => {
+      let rect = null, measured = 0;
       card.addEventListener('mousemove', e => {
-        const r = card.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width - .5;
-        const y = (e.clientY - r.top) / r.height - .5;
+        const now = performance.now();
+        if (!rect || now - measured > 120) { rect = card.getBoundingClientRect(); measured = now; }
+        const x = (e.clientX - rect.left) / rect.width - .5;
+        const y = (e.clientY - rect.top) / rect.height - .5;
         card.style.setProperty('--rx', `${(-y * 5).toFixed(2)}deg`);
         card.style.setProperty('--ry', `${(x * 5).toFixed(2)}deg`);
-      });
+      }, { passive: true });
       card.addEventListener('mouseleave', () => {
         card.style.setProperty('--rx', '0deg');
         card.style.setProperty('--ry', '0deg');

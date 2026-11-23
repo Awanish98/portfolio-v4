@@ -10,13 +10,30 @@ img, svg, video, canvas { max-width: 100%; }
 html, body { overflow-x: clip; }
 
 /* ---------- Netlify injected "Powered by Netlify" badge ---------- */
-/* Netlify adds this iframe at the edge; keep the portfolio UI clean. */
-#nl-badge-frame {
+/* Netlify injects this at the edge and has changed its markup/id over time.
+   Hide every known shell; premium.js removes any node injected later. */
+#nl-badge-frame,
+[id*="nl-badge"],
+[id*="netlify-badge"],
+[class*="nl-badge"],
+[class*="netlify-badge"],
+[data-netlify-badge],
+netlify-badge,
+iframe[src*="netlify.com"]:not(#modalFrame),
+iframe[src*="netlify.app/badge"] {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
-  filter: blur(14px) !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
   pointer-events: none !important;
+  z-index: -9999 !important;
 }
 /* Bob stays above any injected overlay, even if Netlify re-adds it. */
 .bob-root { z-index: 2147483646 !important; }

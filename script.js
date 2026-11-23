@@ -479,7 +479,7 @@ function initStars() {
 
   const tick = ts => {
     raf = requestAnimationFrame(tick);
-    if (ts - last < 32) return;          // ~30fps is plenty for drifting stars
+    if (ts - last < 22) return;          // ~45fps: smooth drift, still cheap
     last = ts;
     render();
   };

@@ -10,12 +10,21 @@ img, svg, video, canvas { max-width: 100%; }
 html, body { overflow-x: clip; }
 
 /* ---------- Netlify injected "Powered by Netlify" badge ---------- */
-/* Netlify injects this at the edge and has changed its markup/id over time.
-   Hide every known shell; premium.js removes any node injected later. */
-#nl-badge-frame,
+/* Netlify injects a <button id="nl-badge" class="nl-badge"> plus its own
+   <style> containing `#nl-badge { display:flex !important }` at the very end
+   of the document. A plain #id or [id*=] selector LOSES to that (same/lower
+   specificity, injected later). `html body #nl-badge` = (1,0,2) wins. */
+html body #nl-badge,
+html body #nl-badge-frame,
+html body #nl-card,
+html body button.nl-badge,
+html:root #nl-badge,
+html:root #nl-badge-frame,
 [id*="nl-badge"],
+[id*="nl-card"],
 [id*="netlify-badge"],
 [class*="nl-badge"],
+[class*="nl-card"],
 [class*="netlify-badge"],
 [data-netlify-badge],
 netlify-badge,

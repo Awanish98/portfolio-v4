@@ -53,7 +53,6 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 
 /* backdrop-filter over scrolling content is the #1 scroll-jank source.
    Use near-opaque surfaces with a hairline border instead — same look, cheap. */
-.nav.scrolled,
 .nav-cta,
 .hero-title em,
 .float-badge,
@@ -75,13 +74,22 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 .demo-expand,
 .cw-chip,
 .bob-panel,
-.bob-input,
-.nav-links {
+.bob-input {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
-.nav.scrolled { background: rgba(5, 3, 21, .93) !important; }
-.nav-links { background: rgba(5, 3, 21, .97) !important; }
+/* Keep the glass feel where it actually matters (nav + mobile menu only).
+   These are small, short-lived layers — unlike blurring the whole page. */
+.nav.scrolled {
+  background: rgba(5, 3, 21, .82) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
+  backdrop-filter: blur(14px) saturate(140%) !important;
+}
+.nav-links {
+  background: rgba(5, 3, 21, .94) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+  backdrop-filter: blur(18px) saturate(140%) !important;
+}
 .bob-panel { background: rgba(9, 7, 28, .97) !important; }
 .cw-chip,
 .btn-ghost,
@@ -108,13 +116,21 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 
 .hero-media { position: absolute; }
 .hero-media::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
+  content: ''; position: absolute; inset: -3%; pointer-events: none;
   background: url('aurora.svg') center / cover no-repeat;
   opacity: .92;
+  /* ambient motion restored the cheap way: transform only, no filter/background-position */
+  animation: pmAuroraDrift 20s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes pmAuroraDrift {
+  from { transform: translate3d(-1.2%, .4%, 0) scale(1.02); }
+  to   { transform: translate3d(1.2%, -.6%, 0) scale(1.06); }
 }
 .sh-hero::before {
   background: url('aurora.svg') center / cover no-repeat !important;
   opacity: .78;
+  animation: pmAuroraDrift 24s ease-in-out infinite alternate;
 }
 .sh-window::before {
   filter: none !important;
@@ -141,17 +157,18 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 .motion-paused *::before,
 .motion-paused *::after { animation-play-state: paused !important; }
 
-/* Keep continuous text-gradient shifts, but slow them down: fewer repaints. */
+/* Keep the original, lively text-gradient speeds so the site still feels
+   fluid. The lag came from blurs/filters, not from these short repaints. */
 .flow-text, .hero-title .outline, .section-title em, .contact-title em,
 .sh-title em, .loader-mark span, .hero-title em b, .eyebrow b,
 .section-kicker span, .fcard-num, .tl-date, .skill-group h4, .promo-tag,
 .spot-n, .demo-num, .stat strong, .ticker-track span, .ticker-track i,
 .section-kicker::after, .scroll-progress span, .stat::before,
 .fcard::after, .promo-feature::after, .sh-window-inner::after {
-  animation-duration: 18s !important;
+  animation-duration: 9s !important;
 }
-.hero-title .line > span.outline { animation-duration: 1.05s, 18s !important; }
-.sh-title .shimmer { animation-duration: 16s !important; }
+.hero-title .line > span.outline { animation-duration: 1.05s, 9s !important; }
+.sh-title .shimmer { animation-duration: 8s !important; }
 
 /* ---------------------------------------------------------------
    3. RECOLOR — hardcoded crimson → electric indigo
@@ -183,11 +200,21 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 }
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(67, 59, 255, .2); } 50% { box-shadow: 0 0 0 9px rgba(67, 59, 255, 0); } }
 
+/* IMPORTANT: use background-image, NOT the `background` shorthand.
+   The shorthand resets background-clip/background-size and makes the
+   gradient text transparent — which is why "Awanish Kumar" vanished. */
 .hero-title .name-first {
-  background: linear-gradient(178deg, #ffffff 4%, #fbfbfe 48%, #dedcff 100%) !important;
+  background-image: linear-gradient(178deg, #ffffff 4%, #fbfbfe 48%, #dedcff 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
 }
 .hero-title .outline {
-  background: linear-gradient(100deg, #dedcff 0%, #8f8bff 24%, #433bff 50%, #8f8bff 76%, #dedcff 100%) !important;
+  background-image: linear-gradient(100deg, #dedcff 0%, #8f8bff 24%, #433bff 50%, #8f8bff 76%, #dedcff 100%) !important;
+  background-size: 190% 100% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
   filter: drop-shadow(0 0 24px rgba(67, 59, 255, .42)) !important;
 }
 .hero-title em {
@@ -231,7 +258,13 @@ html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; 
 .stat::before { background: linear-gradient(var(--accent), transparent) !important; }
 
 .sh-title em { color: var(--lavender) !important; }
-.sh-title .shimmer { background: linear-gradient(100deg, #fbfbfe 10%, #dedcff 28%, var(--accent) 50%, #dedcff 72%, #fbfbfe 90%) !important; }
+.sh-title .shimmer {
+  background-image: linear-gradient(100deg, #fbfbfe 10%, #dedcff 28%, var(--accent) 50%, #dedcff 72%, #fbfbfe 90%) !important;
+  background-size: 260% 100% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
 .sh-window-ring { border-color: rgba(67, 59, 255, .22) !important; border-top-color: var(--accent) !important; }
 .sh-window-inner { background: #0a0820 !important; }
 .bob-panel { background-image: radial-gradient(420px 220px at 100% 0%, rgba(67, 59, 255, .18), transparent 65%) !important; }

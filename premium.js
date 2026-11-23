@@ -14,10 +14,14 @@
      responsive.css; this removes anything injected later too.
      ----------------------------------------------------------- */
   (function badgeGuard() {
+    /* Observed live markup:
+       <button type="button" class="nl-badge" id="nl-badge"
+               aria-label="Powered by Netlify — build your own site"> ... */
     var selectors = [
-      '#nl-badge-frame',
-      '[id*="nl-badge"]', '[id*="netlify-badge"]',
-      '[class*="nl-badge"]', '[class*="netlify-badge"]',
+      '#nl-badge', '#nl-badge-frame', '#nl-card',
+      'button.nl-badge',
+      '[id*="nl-badge"]', '[id*="nl-card"]', '[id*="netlify-badge"]',
+      '[class*="nl-badge"]', '[class*="nl-card"]', '[class*="netlify-badge"]',
       '[data-netlify-badge]', 'netlify-badge',
       'iframe[src*="netlify.com"]:not(#modalFrame)',
       'iframe[src*="netlify.app/badge"]'
@@ -28,8 +32,12 @@
       for (var i = 0; i < selectors.length; i++) {
         try { if (el.matches(selectors[i])) return true; } catch (_) {}
       }
-      /* Netlify's badge is an iframe with inline fixed-corner styling.
-         Catch rebranded injections that no longer use a predictable id. */
+      /* Generic fallback: any aria-label announcing the Netlify badge. */
+      try {
+        var label = (el.getAttribute('aria-label') || '') + ' ' + (el.getAttribute('title') || '');
+        if (/powered by\s+netlify/i.test(label)) return true;
+      } catch (_) {}
+      /* Older iframe form with fixed bottom-right inline styling. */
       if (el.tagName === 'IFRAME' && el.id !== 'modalFrame' &&
           !el.closest('.fcard, .pc-media, .promo-stage, .sh-window, .modal')) {
         var inline = el.getAttribute('style') || '';
@@ -47,22 +55,43 @@
           root.querySelectorAll(sel).forEach(function (node) { node.remove(); });
         } catch (_) {}
       });
+      /* Also catch aria-labelled badges without a predictable id/class. */
+      try {
+        root.querySelectorAll('[aria-label]').forEach(function (node) {
+          if (isBadge(node)) node.remove();
+        });
+      } catch (_) {}
     }
 
-    purge(document.documentElement);
-    window.addEventListener('load', function () { purge(document.documentElement); }, { once: true });
+    function purgeAll() {
+      purge(document.documentElement);
+      /* Netlify may mount the badge inside an open shadow root. */
+      document.querySelectorAll('*').forEach(function (el) {
+        if (el.shadowRoot) {
+          purge(el.shadowRoot);
+          observe(el.shadowRoot);
+        }
+      });
+    }
 
+    var observer = null;
     if ('MutationObserver' in window) {
-      var observer = new MutationObserver(function (records) {
+      observer = new MutationObserver(function (records) {
         for (var i = 0; i < records.length; i++) {
           records[i].addedNodes.forEach(purge);
         }
       });
-      observer.observe(document.documentElement, { childList: true, subtree: true });
-      /* badge is injected during load — stop watching after that so we do
-         not pay for mutation records when projects/chat render. */
-      window.setTimeout(function () { observer.disconnect(); }, 8000);
     }
+    function observe(root) {
+      if (observer && root) observer.observe(root, { childList: true, subtree: true });
+    }
+
+    purgeAll();
+    observe(document.documentElement);
+    window.addEventListener('load', purgeAll, { once: true });
+    /* Netlify can inject well after load (and after iframe previews settle).
+       Keep the guard alive for the whole page lifetime — no disconnect. */
+    [1500, 4000, 9000].forEach(function (ms) { window.setTimeout(purgeAll, ms); });
   })();
 
   /* -----------------------------------------------------------
